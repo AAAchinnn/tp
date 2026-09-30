@@ -55,3 +55,11 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 [[github](http://github.com/smilesocute)]
 
 * Role: Developer
+
+### Zhou Zheng
+
+<img src="images/zhouzheng152.png" width="200px">
+
+[[github](https://github.com/ZhouZheng152)]
+
+* Role: Developer
