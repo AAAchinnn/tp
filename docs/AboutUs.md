@@ -48,12 +48,10 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Developer
 * Responsibilities: Dev Ops + Threading
 
-### James Doe
+### Joshua Tan Jek Chee
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/smilesocute.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](http://github.com/smilesocute)]
 
 * Role: Developer
-* Responsibilities: UI
