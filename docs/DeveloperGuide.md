@@ -296,32 +296,61 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is `UniTeam` and the **Actor** is the `user`, unless specified otherwise)
 
-**Use case: Delete a person**
+**Use case: Assign contact to project**
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1. User requests to view all contacts
+2. UniTeam displays the contact list
+3. User requests to assign a contact from the displayed list to an existing project
+4. UniTeam saves the association between the contact and the project and displays a confirmation
 
-    Use case ends.
+   Use case ends.
 
 **Extensions**
 
-* 2a. The list is empty.
+* 2a. The contact list is empty.
 
   Use case ends.
 
-* 3a. The given index is invalid.
+* 3a. The supplied contact index is missing, is not a positive integer, or does not correspond to a contact in the displayed list.
 
-    * 3a1. AddressBook shows an error message.
+    * 3a1. UniTeam displays an error message.
 
-      Use case resumes at step 2.
+      Use case resumes at step 3.
 
-*{More to be added}*
+* 3b. The project name is missing or empty, or is supplied more than once.
+
+    * 3b1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 3c. The specified project does not exist.
+
+    * 3c1. UniTeam informs the user that the project does not exist.
+
+      Use case resumes at step 3.
+
+* 3d. The contact is already assigned to the specified project.
+
+    * 3d1. UniTeam informs the user that the association already exists.
+
+      Use case resumes at step 3.
+
+* 3e. The request contains an unsupported parameter.
+
+    * 3e1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 4a. UniTeam cannot save the association.
+
+    * 4a1. UniTeam informs the user that the association could not be saved.
+    * 4a2. UniTeam leaves the existing contact and project data unchanged.
+
+      Use case ends.
 
 ### Non-Functional Requirements
 
