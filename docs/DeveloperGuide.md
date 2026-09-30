@@ -352,6 +352,47 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+**Use case: List project contacts**
+
+**MSS**
+
+1. User requests to view all projects
+2. UniTeam displays the project list
+3. User requests to view the contacts associated with a specified project
+4. UniTeam displays the associated contacts and the number of contacts found
+
+   Use case ends.
+
+**Extensions**
+
+* 2a. The project list is empty.
+
+  Use case ends.
+
+* 3a. The project name is missing or empty, or is supplied more than once.
+
+    * 3a1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 3b. The specified project does not exist.
+
+    * 3b1. UniTeam informs the user that the project does not exist.
+
+      Use case resumes at step 3.
+
+* 3c. The request contains an unsupported parameter.
+
+    * 3c1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 4a. The specified project has no associated contacts.
+
+    * 4a1. UniTeam displays an empty contact list and informs the user that no contacts were found in the project.
+
+      Use case ends.
+
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
