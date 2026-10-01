@@ -3,15 +3,25 @@
 
 ![Ui](docs/images/Ui.png)
 
-* This is **a sample project for Software Engineering (SE) students**.<br>
-  Example usages:
-  * as a starting point of a course project (as opposed to writing everything from scratch)
-  * as a case study
-* The project simulates an ongoing software project for a desktop application (called _AddressBook_) used for managing contact details.
-  * It is **written in an object-oriented programming (OOP) style** and provides a **reasonably well-written** codebase of about 6 KLoC. It is **larger** than what students typically write in beginner-level software-engineering modules, without being overwhelming.
-  * It comes with a **reasonable level of user and developer documentation**.
+# UniTeam
 
-* For the detailed documentation of this project, see the **[Address Book Product Website](https://se-education.org/addressbook-level3)**.
+*Description to be added
+
+## Features
+
+*Features to be added
+
+## Quick start
+
+1. Ensure that you have java `25` or above installed.
+2. Download the latest `uniteam.jar` from the [releases page](https://github.com/AY2627S1-CS2103T-T08-2/tp/releases).
+3. Copy the file into the folder you want to use as the home for UniTeam.
+4. Open a terminal in that folder and run `java -jar uniteam.jar`.
+5. Type a command box and press Enter.
+
+## Documentation
+
+*Documentation to be added
 
 ## Acknowledgements
 This project is based on [AddressBook-Level3](https://github.com/se-edu/addressbook-level3), created by the [SE-EDU initiative](https://se-education.org).
