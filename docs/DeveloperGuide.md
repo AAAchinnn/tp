@@ -298,6 +298,53 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 (For all use cases below, the **System** is `UniTeam` and the **Actor** is the `user`, unless specified otherwise)
 
+**Use case: Add a contact**
+
+**MSS**
+
+1. User request to add a contact, giving contact's name, role and contact details
+2. UniTeam checks that the input is in the correct format
+3. UniTeams checks that each given detail is valid
+4. UniTeams checks that the contact does not already exist
+5. UniTeams adds the contact and saves the updated data
+6. Uniteams displays a confirmation message and shows the new contact in the contact list
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The command format is invalid
+    
+    * 2a1. UniTeam shows an error message with the correct command format.
+
+    Use case resumes at step 1.
+
+* 2b. A required field is missing.
+
+    * 2b1. UniTeam shows an error message
+  
+      Use case resumes at step 1.
+
+* 3a. A given detail is invalid.
+
+    * 3a1. UniTeam shows an error message
+
+      Use case resumes at step 1.
+
+* 4a. A contact with the same identity already exists.
+
+    * 4a1. UniTeam shows an error message
+    
+      Use case resumes at step 1.
+
+
+* 5a. UniTeam is unable to save the data.
+    
+    * 4a1. UniTeam shows an error message
+
+      Use case ends.
+
+
 **Use case: Add a project**
 
 **MSS**
