@@ -11,6 +11,12 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 ## Project team
 
+### Achin
+
+<img src="images/aaachinnn.png" width="200px">
+
+[[github](https://github.com/aaachinnn)]
+
 ### Justen Chong
 
 <img src="images/alrightokguy.png" width="200px">
