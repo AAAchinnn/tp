@@ -19,25 +19,6 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 * Role: Developer
 
-### Jane Doe
-
-<img src="images/johndoe.png" width="200px">
-
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
-
-* Role: Team Lead
-* Responsibilities: UI
-
-### Johnny Doe
-
-<img src="images/johndoe.png" width="200px">
-
-[[github](http://github.com/johndoe)] [[portfolio](team/johndoe.md)]
-
-* Role: Developer
-* Responsibilities: Data
-
 ### Joshua Eu Guang En
 
 <img src="images/honeybee101.png" width="200px">
