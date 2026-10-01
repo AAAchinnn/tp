@@ -296,40 +296,196 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is `UniTeam` and the **Actor** is the `user`, unless specified otherwise)
 
-**Use case: Delete a person**
+**Use case: Add a contact**
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1. User request to add a contact, giving contact's name, role and contact details
+2. UniTeam checks that the input is in the correct format
+3. UniTeams checks that each given detail is valid
+4. UniTeams checks that the contact does not already exist
+5. UniTeams adds the contact and saves the updated data
+6. Uniteams displays a confirmation message and shows the new contact in the contact list
 
     Use case ends.
 
 **Extensions**
 
-* 2a. The list is empty.
+* 2a. The command format is invalid
+    
+    * 2a1. UniTeam shows an error message with the correct command format.
+
+    Use case resumes at step 1.
+
+* 2b. A required field is missing.
+
+    * 2b1. UniTeam shows an error message
+  
+      Use case resumes at step 1.
+
+* 3a. A given detail is invalid.
+
+    * 3a1. UniTeam shows an error message
+
+      Use case resumes at step 1.
+
+* 4a. A contact with the same identity already exists.
+
+    * 4a1. UniTeam shows an error message
+    
+      Use case resumes at step 1.
+
+
+* 5a. UniTeam is unable to save the data.
+    
+    * 4a1. UniTeam shows an error message
+
+      Use case ends.
+
+
+**Use case: Add a project**
+
+**MSS**
+
+1. User requests to add a project, giving the project name
+2. UniTeam checks that no existing project has the same name
+3. UniTeam adds the project to the project list
+4. UniTeam saves the updated data
+5. UniTeam shows a confirmation message with new project's details and the project list is updated 
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. The command format is invalid.
+
+    * 1a1. UniTeam shows an error message
+      
+      Use case resumes at step 1.
+    
+* 1b. The project name is missing.
+
+    * 1b1. UniTeam shows an error message
+  
+      Use case resumes at step 1.
+
+* 2a. A project with the same name already exists.
+
+    * 2a1. UniTeam shows an error message
+
+      Use case resumes at step 1.
+
+* 4a. UniTeam is unable to save the data.
+    
+    * 4a1. UniTeam shows an error message
+
+      Use case ends.
+
+**Use case: Assign contact to project**
+
+**MSS**
+
+1. User requests to view all contacts
+2. UniTeam displays the contact list
+3. User requests to assign a contact from the displayed list to an existing project
+4. UniTeam saves the association between the contact and the project and displays a confirmation
+
+   Use case ends.
+
+**Extensions**
+
+* 2a. The contact list is empty.
 
   Use case ends.
 
-* 3a. The given index is invalid.
+* 3a. The supplied contact index is missing, is not a positive integer, or does not correspond to a contact in the displayed list.
 
-    * 3a1. AddressBook shows an error message.
+    * 3a1. UniTeam displays an error message.
 
-      Use case resumes at step 2.
+      Use case resumes at step 3.
 
-*{More to be added}*
+* 3b. The project name is missing or empty, or is supplied more than once.
+
+    * 3b1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 3c. The specified project does not exist.
+
+    * 3c1. UniTeam informs the user that the project does not exist.
+
+      Use case resumes at step 3.
+
+* 3d. The contact is already assigned to the specified project.
+
+    * 3d1. UniTeam informs the user that the association already exists.
+
+      Use case resumes at step 3.
+
+* 3e. The request contains an unsupported parameter.
+
+    * 3e1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 4a. UniTeam cannot save the association.
+
+    * 4a1. UniTeam informs the user that the association could not be saved.
+    * 4a2. UniTeam leaves the existing contact and project data unchanged.
+
+      Use case ends.
+
+**Use case: List project contacts**
+
+**MSS**
+
+1. User requests to view all projects
+2. UniTeam displays the project list
+3. User requests to view the contacts associated with a specified project
+4. UniTeam displays the associated contacts and the number of contacts found
+
+   Use case ends.
+
+**Extensions**
+
+* 2a. The project list is empty.
+
+  Use case ends.
+
+* 3a. The project name is missing or empty, or is supplied more than once.
+
+    * 3a1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 3b. The specified project does not exist.
+
+    * 3b1. UniTeam informs the user that the project does not exist.
+
+      Use case resumes at step 3.
+
+* 3c. The request contains an unsupported parameter.
+
+    * 3c1. UniTeam displays an error message.
+
+      Use case resumes at step 3.
+
+* 4a. The specified project has no associated contacts.
+
+    * 4a1. UniTeam displays an empty contact list and informs the user that no contacts were found in the project.
+
+      Use case ends.
 
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
 2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
 3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
-
-*{More to be added}*
+4.  Should respond to any command within 2 seconds.
+5.  Should work offline, without needing an internet connection.
+6.  Should not lose existing data if app crashes or is closed unexpectedly.
 
 ### Glossary
 
