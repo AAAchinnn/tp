@@ -17,7 +17,7 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 [[github](https://github.com/aaachinnn)]
 
-* Role: Project Advisor
+* Role: Data and Devops
 
 ### Jane Doe
 
