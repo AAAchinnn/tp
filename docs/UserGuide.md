@@ -35,6 +35,8 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
    * `delete 3` : Deletes the 3rd contact shown in the current list.
 
+   * `remark 1 r/Likes baseball` : Adds a remark to the 1st contact shown in the current list.
+
    * `clear` : Deletes all contacts.
 
    * `exit` : Exits the app.
@@ -112,6 +114,19 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]... `
 Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
+
+### Adding or editing a remark: `remark`
+
+Adds or updates a remark for an existing person in the address book.
+
+Format: `remark INDEX r/REMARK`
+
+* The index refers to the person in the displayed person list and must be a positive integer.
+* An existing remark is overwritten. Use `r/` without a value to remove the remark.
+
+Examples:
+* `remark 2 r/Likes baseball` adds a remark to the 2nd person in the displayed list.
+* `remark 2 r/` removes the remark from the 2nd person in the displayed list.
 
 ### Locating persons by name: `find`
 
@@ -199,6 +214,7 @@ Action     | Format, Examples
 **Clear**  | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
+**Remark** | `remark INDEX r/REMARK`<br> e.g., `remark 2 r/Likes baseball`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
 **Help**   | `help`
