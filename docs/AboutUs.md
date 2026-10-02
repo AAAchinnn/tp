@@ -17,43 +17,37 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 
 [[github](https://github.com/aaachinnn)]
 
-* Role: Data and Devops
+* Role: Developer
 
-### Jane Doe
+### Justen Chong
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/alrightokguy.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
-
-* Role: Team Lead
-* Responsibilities: UI
-
-### Johnny Doe
-
-<img src="images/johndoe.png" width="200px">
-
-[[github](http://github.com/johndoe)] [[portfolio](team/johndoe.md)]
+[[github](https://github.com/alrightokguy)]
 
 * Role: Developer
-* Responsibilities: Data
 
-### Jean Doe
+### Joshua Eu Guang En
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/honeybee1011.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](http://github.com/honeybee101)]
 
 * Role: Developer
-* Responsibilities: Dev Ops + Threading
+* Responsibilities: Features
 
-### James Doe
+### Joshua Tan Jek Chee
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/smilesocute.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](http://github.com/smilesocute)]
 
 * Role: Developer
-* Responsibilities: UI
+
+### Zhou Zheng
+
+<img src="images/zhouzheng152.png" width="200px">
+
+[[github](https://github.com/ZhouZheng152)]
+
+* Role: Developer
