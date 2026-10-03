@@ -9,7 +9,12 @@
 
 ## Features
 
-*Features to be added
+* **Manage contacts** — Add contacts with the details you need for university work.
+* **View contacts at a glance** — List saved contacts and retrieve their information quickly.
+* **Organise projects** — Create projects and view all your existing projects in one place.
+* **Connect people to projects** — Assign contacts to projects to keep track of everyone involved.
+* **View project teams** — Display all contacts associated with a selected project.
+* **Keep your data between sessions** — Contacts, projects, and their associations are saved locally.
 
 ## Quick start
 
