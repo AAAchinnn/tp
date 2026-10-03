@@ -5,7 +5,7 @@
 
 # UniTeam
 
-*Description to be added
+UniTeam is a lightweight, local address book designed for university students who frequently collaborate on projects across different modules. It helps users store contact details, organise contacts using projects and tags, and quickly search or filter for the people they need. UniTeam keeps academic contacts separate from personal phone contacts and focuses on contact organisation.
 
 ## Features
 
