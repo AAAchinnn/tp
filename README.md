@@ -21,7 +21,12 @@
 
 ## Documentation
 
-*Documentation to be added
+* For project documentation, see:
+  * [User Guide](docs/UserGuide.md) for using AddressBook and its commands.
+  * [Developer Guide](docs/DeveloperGuide.md) for the design and implementation.
+  * [Setting Up](docs/SettingUp.md) for installing the development environment.
+  * [Testing](docs/Testing.md) for running the tests.
+  * [AddressBook Product Website](https://se-education.org/addressbook-level3) for the published documentation.
 
 ## Acknowledgements
 This project is based on [AddressBook-Level3](https://github.com/se-edu/addressbook-level3), created by the [SE-EDU initiative](https://se-education.org).
