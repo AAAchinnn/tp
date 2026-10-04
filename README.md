@@ -22,11 +22,11 @@
 ## Documentation
 
 * For project documentation, see:
-  * [User Guide](docs/UserGuide.md) for using AddressBook and its commands.
+  * [User Guide](docs/UserGuide.md) for using UniTeam and its commands.
   * [Developer Guide](docs/DeveloperGuide.md) for the design and implementation.
   * [Setting Up](docs/SettingUp.md) for installing the development environment.
   * [Testing](docs/Testing.md) for running the tests.
-  * [AddressBook Product Website](https://se-education.org/addressbook-level3) for the published documentation.
+  * [UniTeam Product Website](https://ay2627s1-cs2103t-t08-2.github.io/tp/) for the published documentation.
 
 ## Acknowledgements
 This project is based on [AddressBook-Level3](https://github.com/se-edu/addressbook-level3), created by the [SE-EDU initiative](https://se-education.org).
