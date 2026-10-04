@@ -289,10 +289,10 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *`  | user                                       | add a new person             |                                                                        |
 | `* * *`  | user                                       | delete a person              | remove entries that I no longer need                                   |
 | `* * *`  | user                                       | find a person by name        | locate details of persons without having to go through the entire list |
-| `* * *`  | returning user | save my contacts and projects after I close the application | do not need to re-enter them |
-| `* * *`  | university student | add a new project | can create a project to link associated contacts |
+| `* * *`  | returning user | retain my contacts, projects and their associations between sessions | continue where I left off without re-entering information |
+| `* * *`  | university student | add a new project | organise contacts according to the projects they are involved in |
 | `* * *`  | university student | associate a contact with a project | keep track of everyone involved |
-| `* * *`  | university student | view all contacts for a project | can see everyone at a glance |
+| `* * *`  | university student | view all contacts for a project | see everyone involved at a glance |
 | `* * *`  | university student | view all projects | quickly find the project I am working on |
 | `* *`    | user                                       | hide private contact details | minimize chance of someone else seeing them by accident                |
 | `*`      | user with many persons in the address book | sort persons by name         | locate a person easily                                                 |
