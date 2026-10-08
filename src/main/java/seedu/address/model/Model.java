@@ -1,10 +1,12 @@
 package seedu.address.model;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.person.Person;
+import seedu.address.model.project.Project;
 
 /**
  * The API of the Model component.
@@ -68,4 +70,19 @@ public interface Model {
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredPersonList(Predicate<Person> predicate);
+
+    /** Returns the persisted projects in id order. */
+    default List<Project> getProjects() {
+        return List.of();
+    }
+
+    /** Returns contacts assigned to the specified project id. */
+    default List<Person> getContactsForProject(int projectId) {
+        return List.of();
+    }
+
+    /** Returns projects assigned to the specified contact name. */
+    default List<Project> getProjectsForContact(String contactName) {
+        return List.of();
+    }
 }
