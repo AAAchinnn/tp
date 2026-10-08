@@ -2,12 +2,19 @@ package seedu.address.model;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.UniquePersonList;
+import seedu.address.model.project.Project;
+import seedu.address.model.project.ProjectContact;
 
 /**
  * Wraps all data at the address-book level.
@@ -16,6 +23,8 @@ import seedu.address.model.person.UniquePersonList;
 public class AddressBook implements ReadOnlyAddressBook {
 
     private final UniquePersonList persons = new UniquePersonList();
+    private final List<Project> projects = new ArrayList<>();
+    private final List<ProjectContact> projectContacts = new ArrayList<>();
 
     public AddressBook() {}
 
@@ -37,6 +46,46 @@ public class AddressBook implements ReadOnlyAddressBook {
         this.persons.setPersons(persons);
     }
 
+    /** Replaces the projects. */
+    public void setProjects(List<Project> projects) {
+        this.projects.clear();
+        this.projects.addAll(projects);
+    }
+
+    /** Replaces project-contact associations. */
+    public void setProjectContacts(List<ProjectContact> links) {
+        this.projectContacts.clear();
+        this.projectContacts.addAll(links);
+    }
+
+    @Override
+    public List<Project> getProjectList() {
+        return projects.stream().sorted(Comparator.comparingInt(Project::getId))
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    @Override
+    public List<ProjectContact> getProjectContacts() {
+        return Collections.unmodifiableList(projectContacts);
+    }
+
+    /** Returns the contacts assigned to a project. */
+    public List<Person> getProjectContacts(int projectId) {
+        return projectContacts.stream().filter(link -> link.getProjectId() == projectId)
+                .map(ProjectContact::getContactName)
+                .map(name -> persons.asUnmodifiableObservableList().stream()
+                        .filter(person -> person.getName().fullName.equals(name)).findFirst().orElse(null))
+                .filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
+    }
+
+    /** Returns projects assigned to a contact name. */
+    public List<Project> getProjectsForContact(String contactName) {
+        return projectContacts.stream().filter(link -> link.getContactName().equals(contactName))
+                .map(ProjectContact::getProjectId).distinct()
+                .flatMap(id -> projects.stream().filter(project -> project.getId() == id))
+                .sorted(Comparator.comparingInt(Project::getId)).collect(Collectors.toUnmodifiableList());
+    }
+
     /**
      * Resets the existing data of this {@code AddressBook} with {@code newData}.
      */
@@ -44,6 +93,8 @@ public class AddressBook implements ReadOnlyAddressBook {
         requireNonNull(newData);
 
         setPersons(newData.getPersonList());
+        setProjects(newData.getProjectList());
+        setProjectContacts(newData.getProjectContacts());
     }
 
     //// person-level operations
@@ -108,11 +159,12 @@ public class AddressBook implements ReadOnlyAddressBook {
             return false;
         }
 
-        return persons.equals(otherAddressBook.persons);
+        return persons.equals(otherAddressBook.persons) && projects.equals(otherAddressBook.projects)
+                && projectContacts.equals(otherAddressBook.projectContacts);
     }
 
     @Override
     public int hashCode() {
-        return persons.hashCode();
+        return Objects.hash(persons, projects, projectContacts);
     }
 }
