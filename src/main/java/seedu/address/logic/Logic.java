@@ -36,17 +36,31 @@ public interface Logic {
      */
     void setGuiSettings(GuiSettings guiSettings);
 
-    /** Returns all projects. */
+    /**
+     * Returns all projects in ascending ID order.
+     *
+     * @return projects sorted by ID
+     */
     default List<Project> getProjects() {
         return List.of();
     }
 
-    /** Returns the contacts assigned to a project. */
+    /**
+     * Returns the contacts assigned to a project.
+     *
+     * @param projectId identifier of the project
+     * @return associated contacts, or an empty list when there are no matches
+     */
     default List<Person> getContactsForProject(int projectId) {
         return List.of();
     }
 
-    /** Returns the projects assigned to a contact. */
+    /**
+     * Returns the projects assigned to a contact.
+     *
+     * @param contactName unique name of the contact
+     * @return associated projects, or an empty list when there are no matches
+     */
     default List<Project> getProjectsForContact(String contactName) {
         return List.of();
     }

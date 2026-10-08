@@ -71,17 +71,31 @@ public interface Model {
      */
     void updateFilteredPersonList(Predicate<Person> predicate);
 
-    /** Returns the persisted projects in id order. */
+    /**
+     * Returns the persisted projects in ascending ID order.
+     *
+     * @return projects sorted by ID
+     */
     default List<Project> getProjects() {
         return List.of();
     }
 
-    /** Returns contacts assigned to the specified project id. */
+    /**
+     * Returns contacts assigned to the specified project.
+     *
+     * @param projectId identifier of the project
+     * @return associated contacts, or an empty list when there are no matches
+     */
     default List<Person> getContactsForProject(int projectId) {
         return List.of();
     }
 
-    /** Returns projects assigned to the specified contact name. */
+    /**
+     * Returns projects assigned to the specified contact.
+     *
+     * @param contactName unique name of the contact
+     * @return associated projects, or an empty list when there are no matches
+     */
     default List<Project> getProjectsForContact(String contactName) {
         return List.of();
     }

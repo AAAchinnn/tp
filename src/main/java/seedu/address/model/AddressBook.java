@@ -46,30 +46,53 @@ public class AddressBook implements ReadOnlyAddressBook {
         this.persons.setPersons(persons);
     }
 
-    /** Replaces the projects. */
+    /**
+     * Replaces all stored projects.
+     *
+     * @param projects projects to store
+     */
     public void setProjects(List<Project> projects) {
         this.projects.clear();
         this.projects.addAll(projects);
     }
 
-    /** Replaces project-contact associations. */
+    /**
+     * Replaces all stored project-contact associations.
+     *
+     * @param links associations to store
+     */
     public void setProjectContacts(List<ProjectContact> links) {
         this.projectContacts.clear();
         this.projectContacts.addAll(links);
     }
 
+    /**
+     * Returns an immutable list of projects ordered by project ID.
+     *
+     * @return projects ordered by ID
+     */
     @Override
     public List<Project> getProjectList() {
         return projects.stream().sorted(Comparator.comparingInt(Project::getId))
                 .collect(Collectors.toUnmodifiableList());
     }
 
+    /**
+     * Returns an unmodifiable view of all project-contact associations.
+     *
+     * @return stored project-contact associations
+     */
     @Override
     public List<ProjectContact> getProjectContacts() {
         return Collections.unmodifiableList(projectContacts);
     }
 
-    /** Returns the contacts assigned to a project. */
+    /**
+     * Returns the contacts assigned to the specified project.
+     *
+     * @param projectId identifier of the project to look up
+     * @return matching contacts, or an empty list if there are no matching associations
+     */
     public List<Person> getProjectContacts(int projectId) {
         return projectContacts.stream().filter(link -> link.getProjectId() == projectId)
                 .map(ProjectContact::getContactName)
@@ -78,7 +101,12 @@ public class AddressBook implements ReadOnlyAddressBook {
                 .filter(Objects::nonNull).collect(Collectors.toUnmodifiableList());
     }
 
-    /** Returns projects assigned to a contact name. */
+    /**
+     * Returns projects assigned to a contact.
+     *
+     * @param contactName unique name of the contact to look up
+     * @return matching projects, or an empty list if there are no matching associations
+     */
     public List<Project> getProjectsForContact(String contactName) {
         return projectContacts.stream().filter(link -> link.getContactName().equals(contactName))
                 .map(ProjectContact::getProjectId).distinct()
