@@ -33,6 +33,7 @@ import seedu.address.model.project.ProjectName;
 import seedu.address.model.project.exceptions.DuplicateProjectException;
 import seedu.address.model.project.exceptions.ProjectNotFoundException;
 import seedu.address.testutil.PersonBuilder;
+import seedu.address.testutil.ProjectBuilder;
 
 public class AddressBookTest {
 
@@ -331,7 +332,8 @@ public class AddressBookTest {
         Project project = createProject("CS2103T");
         addMembership(addressBook, ALICE, project);
 
-        assertThrows(UnsupportedOperationException.class, () -> addressBook.getProjectMembershipList().clear());
+        assertThrows(UnsupportedOperationException.class, 
+            () -> addressBook.getProjectMembershipList().clear());
     }
 
     @Test
@@ -349,10 +351,8 @@ public class AddressBookTest {
     public void setProject_projectWithMemberships_preservesMemberships() {
         Project project = createProject("CS2103T");
         ProjectMembership membership = addMembership(addressBook, ALICE, project);
-        Project editedProject = new Project(
-                new ProjectName("  cs2103t   team  "),
-                new Deadline(LocalDate.of(2026, 12, 1)),
-                new Description("Different details"));
+        Project editedProject = new ProjectBuilder(project)
+            .withDeadline(LocalDate.of(2026, 12, 1)).build();
 
         addressBook.setProject(project, editedProject);
 
