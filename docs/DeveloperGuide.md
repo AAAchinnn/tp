@@ -119,12 +119,13 @@ How the parsing works:
 ### Model component
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
 
-<puml src="diagrams/ModelClassDiagram.puml" width="450" />
+<puml src="diagrams/ModelClassDiagram.puml" width="650" />
 
 
 The `Model` component,
 
-* stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
+* stores the address book data: all `Person` objects in a `UniquePersonList`, all `Project` objects in a
+  `UniqueProjectList`, and all `ProjectMembership` objects in a `UniqueProjectMembershipList`.
 * gives each `Person` a non-null, immutable internal `PersonId`, represented by a UUID, that is not displayed to users.
 * stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
@@ -133,6 +134,17 @@ The `Model` component,
 Each `Person` owns exactly one `PersonId`, shown by the composition in the Model diagrams. The normal `Person` constructor generates a new ID, while the reconstruction constructor accepts an existing ID. Editing replaces the person's details but preserves its ID.
 
 IDs provide stable internal references and are separate from contact duplicate detection. `Person#isSamePerson` remains name-based, and `UniquePersonList` still uses it to reject duplicate contacts. `Person#equals` and `Person#hashCode` continue to compare the existing contact fields without including the ID; otherwise equal contacts with different IDs remain equal.
+
+A `ProjectMembership` represents the association between one contact and one project. It stores only the contact's
+`PersonId` and the project's `ProjectId`; it does not store copies of the corresponding `Person` or `Project`.
+`AddressBook` maintains these associations in a `UniqueProjectMembershipList`, where each person-project ID pair may
+occur at most once. A membership can be added only when both referenced entities exist in the same address book.
+Deleting a person or project removes its related memberships, while editing either entity preserves its memberships
+because its ID remains unchanged. Address book copies and resets include the membership collection, and callers can
+inspect it only through an unmodifiable list.
+
+Membership operations are provided by `AddressBook` in this iteration. They are not yet exposed through `Model`,
+Logic commands, or the UI.
 
 
 <box type="info" seamless>
@@ -158,6 +170,12 @@ The `Storage` component,
 
 `JsonSerializableAddressBook#toModelType()` also tracks restored IDs in a `Set<PersonId>` and rejects duplicate IDs with a dedicated error message. UUIDs that differ only in capitalization represent the same ID. The existing name-based duplicate-person check runs first, and a contact is added only after both checks pass. Duplicate IDs are reported as invalid data through the same storage-loading exception path as malformed IDs.
 
+Project and project-membership data are session-only in this iteration. `JsonSerializableAddressBook` serializes
+contacts but does not serialize projects or memberships, so projects and memberships are lost when the application
+terminates. There is no `JsonAdaptedProjectMembership` or `memberships` property in `addressbook.json`. Membership
+persistence should be introduced only after projects and their `ProjectId` values can be reconstructed from storage;
+otherwise a restored membership could not resolve its project reference.
+
 #### Legacy migration
 
 Loading legacy data generates IDs in memory but does not rewrite the JSON file. `LogicManager#execute()` saves the address book after every successful command, including commands such as `list` that do not change contact details. That save writes the generated IDs, and subsequent loads restore them.
@@ -175,6 +193,34 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Project membership model
+
+The project membership model represents the many-to-many relationship between contacts and projects: one contact can
+belong to multiple projects, and one project can contain multiple contacts. Each relationship is represented by a
+separate `ProjectMembership` value object containing a `PersonId` and a `ProjectId`.
+
+Using stable IDs keeps memberships valid when descriptive fields such as a contact's phone number or a project's name
+change. It also avoids the stale or inconsistent data that could result from storing copies of `Person` or `Project` in
+each membership. Names and list indexes are unsuitable references because names can be edited and indexes change when
+the displayed list is filtered or reordered.
+
+`AddressBook` owns the person, project, and membership collections, so it also enforces the relationship invariants. It
+rejects duplicate ID pairs and memberships with unknown IDs, and removes related memberships when a person or project
+is deleted. During reset, persons and projects are installed before memberships so that membership references can be
+validated against the replacement data.
+
+#### Design considerations
+
+**Aspect: Where to store project memberships:**
+
+* **Alternative 1 (current choice):** Store memberships as a separate collection in `AddressBook`.
+  * Pros: Represents each association once, avoids copying entity data, and centralizes duplicate checking,
+    referential integrity, and deletion cleanup.
+  * Cons: Looking up a person's projects or a project's members requires filtering the membership collection.
+* **Alternative 2:** Store associated projects in each `Person` and associated people in each `Project`.
+  * Pros: Makes navigation from either entity direct.
+  * Cons: Duplicates relationship state and requires both sides to be kept synchronized during every update.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -313,6 +359,10 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *`  | university student | view all projects | quickly find the project I am working on |
 | `* *`    | user                                       | hide private contact details | minimize chance of someone else seeing them by accident                |
 | `*`      | user with many persons in the address book | sort persons by name         | locate a person easily                                                 |
+
+The requirement to retain projects and their associations between sessions is not implemented in this iteration.
+Projects and memberships exist only for the active application session; only contacts are reconstructed from
+`addressbook.json` after a restart.
 
 ### Use cases
 
