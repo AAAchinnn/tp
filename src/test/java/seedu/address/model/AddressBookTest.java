@@ -7,6 +7,7 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_HUSBAND;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.BOB;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.time.LocalDate;
@@ -17,13 +18,20 @@ import org.junit.jupiter.api.Test;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.membership.exceptions.DuplicateProjectMembershipException;
+import seedu.address.model.membership.exceptions.ProjectMembershipNotFoundException;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.exceptions.DuplicatePersonException;
+import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.model.project.Deadline;
 import seedu.address.model.project.Description;
 import seedu.address.model.project.Project;
+import seedu.address.model.project.ProjectId;
 import seedu.address.model.project.ProjectName;
 import seedu.address.model.project.exceptions.DuplicateProjectException;
+import seedu.address.model.project.exceptions.ProjectNotFoundException;
 import seedu.address.testutil.PersonBuilder;
 
 public class AddressBookTest {
@@ -33,6 +41,8 @@ public class AddressBookTest {
     @Test
     public void constructor() {
         assertEquals(List.of(), addressBook.getPersonList());
+        assertEquals(List.of(), addressBook.getProjectList());
+        assertEquals(List.of(), addressBook.getProjectMembershipList());
     }
 
     @Test
@@ -91,9 +101,10 @@ public class AddressBookTest {
     public void toStringMethod() {
         String expected =
                 AddressBook.class.getCanonicalName() + String.format(
-                        "{persons=%s, projects=%s}",
+                        "{persons=%s, projects=%s, memberships=%s}",
                         addressBook.getPersonList(),
-                        addressBook.getProjectList()
+                        addressBook.getProjectList(),
+                        addressBook.getProjectMembershipList()
                 );
         assertEquals(expected, addressBook.toString());
     }
@@ -186,12 +197,150 @@ public class AddressBookTest {
         assertThrows(UnsupportedOperationException.class, () -> addressBook.getProjectList().clear());
     }
 
+    @Test
+    public void hasProjectMembership_nullMembership_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> addressBook.hasProjectMembership(null));
+    }
+
+    @Test
+    public void addProjectMembership_validMembership_success() {
+        Project project = createProject("CS2103T");
+        ProjectMembership membership = addMembership(addressBook, ALICE, project);
+
+        assertTrue(addressBook.hasProjectMembership(membership));
+        assertEquals(List.of(membership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void addProjectMembership_unknownPerson_throwsPersonNotFoundException() {
+        Project project = createProject("CS2103T");
+        addressBook.addProject(project);
+        ProjectMembership membership = new ProjectMembership(PersonId.generate(), project.getProjectId());
+
+        assertThrows(PersonNotFoundException.class, () -> addressBook.addProjectMembership(membership));
+        assertTrue(addressBook.getProjectMembershipList().isEmpty());
+    }
+
+    @Test
+    public void addProjectMembership_unknownProject_throwsProjectNotFoundException() {
+        addressBook.addPerson(ALICE);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), ProjectId.generate());
+
+        assertThrows(ProjectNotFoundException.class, () -> addressBook.addProjectMembership(membership));
+        assertTrue(addressBook.getProjectMembershipList().isEmpty());
+    }
+
+    @Test
+    public void addProjectMembership_duplicateMembership_throwsDuplicateProjectMembershipException() {
+        Project project = createProject("CS2103T");
+        ProjectMembership membership = addMembership(addressBook, ALICE, project);
+
+        assertThrows(DuplicateProjectMembershipException.class, () -> addressBook.addProjectMembership(membership));
+        assertEquals(List.of(membership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void removeProjectMembership_existingMembership_removesMembership() {
+        Project project = createProject("CS2103T");
+        ProjectMembership membership = addMembership(addressBook, ALICE, project);
+
+        addressBook.removeProjectMembership(membership);
+
+        assertTrue(addressBook.getProjectMembershipList().isEmpty());
+    }
+
+    @Test
+    public void removeProjectMembership_missingMembership_throwsProjectMembershipNotFoundException() {
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), ProjectId.generate());
+
+        assertThrows(ProjectMembershipNotFoundException.class, () -> addressBook.removeProjectMembership(membership));
+    }
+
+    @Test
+    public void removePerson_personWithMemberships_removesOnlyTheirMemberships() {
+        Project project = createProject("CS2103T");
+        addressBook.addPerson(ALICE);
+        addressBook.addPerson(BOB);
+        addressBook.addProject(project);
+        ProjectMembership aliceMembership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        ProjectMembership bobMembership = new ProjectMembership(BOB.getPersonId(), project.getProjectId());
+        addressBook.addProjectMembership(aliceMembership);
+        addressBook.addProjectMembership(bobMembership);
+
+        addressBook.removePerson(ALICE);
+
+        assertEquals(List.of(bobMembership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void removeProject_projectWithMemberships_removesOnlyItsMemberships() {
+        Project project = createProject("CS2103T");
+        Project otherProject = createProject("Orbital");
+        addressBook.addPerson(ALICE);
+        addressBook.addProject(project);
+        addressBook.addProject(otherProject);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        ProjectMembership otherMembership = new ProjectMembership(ALICE.getPersonId(), otherProject.getProjectId());
+        addressBook.addProjectMembership(membership);
+        addressBook.addProjectMembership(otherMembership);
+
+        addressBook.removeProject(project);
+
+        assertEquals(List.of(otherMembership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void constructor_withMemberships_copiesMembershipsIndependently() {
+        AddressBook original = new AddressBook();
+        Project project = createProject("CS2103T");
+        ProjectMembership membership = addMembership(original, ALICE, project);
+
+        AddressBook copy = new AddressBook(original);
+        original.removeProjectMembership(membership);
+
+        assertEquals(List.of(membership), copy.getProjectMembershipList());
+    }
+
+    @Test
+    public void resetData_withMemberships_replacesExistingMemberships() {
+        Project oldProject = createProject("Old Project");
+        addMembership(addressBook, ALICE, oldProject);
+        AddressBook replacement = new AddressBook();
+        Project newProject = createProject("New Project");
+        ProjectMembership replacementMembership = addMembership(replacement, BOB, newProject);
+
+        addressBook.resetData(replacement);
+
+        assertEquals(List.of(replacementMembership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void equals_differentMemberships_returnsFalse() {
+        AddressBook first = new AddressBook();
+        Project project = createProject("CS2103T");
+        addMembership(first, ALICE, project);
+        AddressBook second = new AddressBook();
+        second.addPerson(ALICE);
+        second.addProject(project);
+
+        assertFalse(first.equals(second));
+    }
+
+    @Test
+    public void getProjectMembershipList_modifyList_throwsUnsupportedOperationException() {
+        Project project = createProject("CS2103T");
+        addMembership(addressBook, ALICE, project);
+
+        assertThrows(UnsupportedOperationException.class, () -> addressBook.getProjectMembershipList().clear());
+    }
+
     /**
      * A stub ReadOnlyAddressBook whose persons list can violate interface constraints.
      */
     private static class AddressBookStub implements ReadOnlyAddressBook {
         private final ObservableList<Person> persons = FXCollections.observableArrayList();
         private final ObservableList<Project> projects = FXCollections.observableArrayList();
+        private final ObservableList<ProjectMembership> memberships = FXCollections.observableArrayList();
 
         AddressBookStub(Collection<Person> persons, Collection<Project> projects) {
             this.persons.setAll(persons);
@@ -207,6 +356,11 @@ public class AddressBookTest {
         public ObservableList<Project> getProjectList() {
             return projects;
         }
+
+        @Override
+        public ObservableList<ProjectMembership> getProjectMembershipList() {
+            return memberships;
+        }
     }
 
     private Project createProject(String name) {
@@ -214,5 +368,13 @@ public class AddressBookTest {
                 new ProjectName(name),
                 new Deadline(LocalDate.of(2026, 11, 1)),
                 Description.EMPTY);
+    }
+
+    private ProjectMembership addMembership(AddressBook addressBook, Person person, Project project) {
+        addressBook.addPerson(person);
+        addressBook.addProject(project);
+        ProjectMembership membership = new ProjectMembership(person.getPersonId(), project.getProjectId());
+        addressBook.addProjectMembership(membership);
+        return membership;
     }
 }
