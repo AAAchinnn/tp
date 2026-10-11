@@ -332,8 +332,7 @@ public class AddressBookTest {
         Project project = createProject("CS2103T");
         addMembership(addressBook, ALICE, project);
 
-        assertThrows(UnsupportedOperationException.class,
-            () -> addressBook.getProjectMembershipList().clear());
+        assertThrows(UnsupportedOperationException.class, () -> addressBook.getProjectMembershipList().clear());
     }
 
     @Test
