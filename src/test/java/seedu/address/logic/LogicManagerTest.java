@@ -169,6 +169,19 @@ public class LogicManagerTest {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
     }
 
+    @Test
+    public void getProjectList_addProject_updatesList() {
+        Project project = new ProjectBuilder().build();
+        model.addProject(project);
+
+        assertEquals(List.of(project), logic.getProjectList());
+    }
+
+    @Test
+    public void getProjectList_modifyList_throwsUnsupportedOperationException() {
+        assertThrows(UnsupportedOperationException.class, () -> logic.getProjectList().remove(0));
+    }
+
     /**
      * Executes the command and confirms that
      * - no exceptions are thrown <br>
