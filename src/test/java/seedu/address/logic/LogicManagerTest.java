@@ -95,6 +95,26 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_associateCommandProjectListOrder_success() throws Exception {
+        List<Project> displayedProjects = logic.getProjectList();
+        Project firstProject = new ProjectBuilder().withName("Zeta").build();
+        Project secondProject = new ProjectBuilder().withName("Alpha").build();
+        model.addPerson(AMY);
+        model.addProject(firstProject);
+        model.addProject(secondProject);
+
+        assertEquals(List.of(firstProject, secondProject), displayedProjects);
+        assertEquals(secondProject.getProjectId(), displayedProjects.get(1).getProjectId());
+        ProjectMembership membership = new ProjectMembership(AMY.getPersonId(), secondProject.getProjectId());
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.addProjectMembership(membership);
+
+        assertCommandSuccess("associate c/1 pr/2",
+                String.format(AssociateCommand.MESSAGE_SUCCESS, AMY.getName(), secondProject.getName()), expectedModel);
+        assertEquals(List.of(membership), model.getAddressBook().getProjectMembershipList());
+    }
+
+    @Test
     public void execute_associateCommandInvalidSyntax_throwsParseException() {
         model.addPerson(AMY);
         model.addProject(new ProjectBuilder().build());

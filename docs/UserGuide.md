@@ -150,21 +150,24 @@ Records that a contact is involved in an existing project.
 
 Format: `associate c/CONTACT_INDEX pr/PROJECT_INDEX`
 
-* `CONTACT_INDEX` refers to the current displayed contact list, including results from `find`.
+* `CONTACT_INDEX` refers to the numbered contact in the Contacts tab, including results from `find`.
+* `PROJECT_INDEX` refers to the numbered project in the Projects tab, not the UUID shown beside `ID:`.
 * Both indices must be positive integers. Each prefix must appear exactly once; their order does not matter.
 * An existing contact-project pair cannot be associated again. A contact can belong to multiple projects, and a
   project can involve multiple contacts.
 * The success message identifies the contact and project. Invalid syntax, out-of-range indices, and duplicate
   associations produce an error and leave existing associations unchanged.
 
-In this version, projects are numbered in the order they are added with `addproject`, starting at 1. A project list
-is not yet displayed in the GUI. Projects and associations last only for the current application session.
+Projects are numbered in the Projects tab starting at 1, in the order they are added with `addproject`.
+Switching tabs does not change either list's indices or reset the contact search results.
+Projects and associations last only for the current application session.
 
 Example, in a new session with at least two contacts:
 
-1. `list` shows all contacts.
+1. `list` shows all contacts in the Contacts tab; note the second contact's name.
 2. `addproject n/CS2103T Team Project d/2026-11-13` creates project 1.
-3. `associate c/2 pr/1` associates the second displayed contact with that project.
+3. Open the Projects tab and confirm that `CS2103T Team Project` is numbered 1.
+4. `associate c/2 pr/1` associates the second contact in the Contacts tab with that project.
 
 After `find Betsy`, use `associate c/1 pr/1` to associate the first search result with project 1 instead.
 
