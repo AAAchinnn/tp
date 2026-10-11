@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.project.Project;
 import seedu.address.model.project.ProjectName;
@@ -125,6 +126,18 @@ public class ModelManager implements Model {
         return addressBook.getProjectList().stream()
                 .filter(project -> project.getName().equals(name))
                 .findFirst();
+    }
+
+    @Override
+    public boolean hasProjectMembership(ProjectMembership membership) {
+        requireNonNull(membership);
+        return addressBook.hasProjectMembership(membership);
+    }
+
+    @Override
+    public void addProjectMembership(ProjectMembership membership) {
+        requireNonNull(membership);
+        addressBook.addProjectMembership(membership);
     }
 
     //=========== Filtered Person List Accessors =============================================================

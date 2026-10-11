@@ -143,8 +143,9 @@ Deleting a person or project removes its related memberships, while editing eith
 because its ID remains unchanged. Address book copies and resets include the membership collection, and callers can
 inspect it only through an unmodifiable list.
 
-Membership operations are provided by `AddressBook` in this iteration. They are not yet exposed through `Model`,
-Logic commands, or the UI.
+`Model` exposes membership lookup and addition through `hasProjectMembership` and `addProjectMembership`.
+`ModelManager` delegates these operations to `AddressBook`, which enforces membership uniqueness and valid entity
+references. Memberships are not yet exposed through Logic commands or the UI.
 
 
 <box type="info" seamless>

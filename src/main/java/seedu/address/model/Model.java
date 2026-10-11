@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.project.Project;
 import seedu.address.model.project.ProjectName;
@@ -106,4 +107,15 @@ public interface Model {
      * Returns the project with the given name, or an empty Optional if none exists.
      */
     Optional<Project> findProject(ProjectName name);
+
+    /**
+     * Returns true if {@code membership} exists in the address book.
+     */
+    boolean hasProjectMembership(ProjectMembership membership);
+
+    /**
+     * Adds a project membership to the address book.
+     * The referenced person and project must exist, and the membership must not already exist.
+     */
+    void addProjectMembership(ProjectMembership membership);
 }
