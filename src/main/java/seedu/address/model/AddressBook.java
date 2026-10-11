@@ -7,10 +7,16 @@ import java.util.Objects;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.membership.UniqueProjectMembershipList;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.person.UniquePersonList;
+import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.model.project.Project;
+import seedu.address.model.project.ProjectId;
 import seedu.address.model.project.UniqueProjectList;
+import seedu.address.model.project.exceptions.ProjectNotFoundException;
 
 /**
  * Wraps all data at the address-book level.
@@ -20,6 +26,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
     private final UniquePersonList persons = new UniquePersonList();
     private final UniqueProjectList projects = new UniqueProjectList();
+    private final UniqueProjectMembershipList memberships = new UniqueProjectMembershipList();
 
     public AddressBook() {
     }
@@ -51,6 +58,19 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
+     * Replaces the contents of the project membership list with {@code memberships}.
+     * Every membership must reference a person and project in this address book, and no duplicates are allowed.
+     */
+    public void setProjectMemberships(List<ProjectMembership> memberships) {
+        UniqueProjectMembershipList replacement = new UniqueProjectMembershipList();
+        replacement.setMemberships(memberships);
+        for (ProjectMembership membership : replacement) {
+            ensureMembershipReferencesExist(membership);
+        }
+        this.memberships.setMemberships(replacement);
+    }
+
+    /**
      * Resets the existing data of this {@code AddressBook} with {@code newData}.
      */
     public void resetData(ReadOnlyAddressBook newData) {
@@ -58,6 +78,7 @@ public class AddressBook implements ReadOnlyAddressBook {
 
         setPersons(newData.getPersonList());
         setProjects(newData.getProjectList());
+        setProjectMemberships(newData.getProjectMembershipList());
     }
 
     //// person-level operations
@@ -94,6 +115,7 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void removePerson(Person key) {
         persons.remove(key);
+        memberships.removeAllForPerson(key.getPersonId());
     }
 
     //// project-level operations
@@ -131,6 +153,36 @@ public class AddressBook implements ReadOnlyAddressBook {
      */
     public void removeProject(Project key) {
         projects.remove(key);
+        memberships.removeAllForProject(key.getProjectId());
+    }
+
+    //// project-membership-level operations
+
+    /**
+     * Returns true if {@code membership} exists in the address book.
+     */
+    public boolean hasProjectMembership(ProjectMembership membership) {
+        requireNonNull(membership);
+        return memberships.contains(membership);
+    }
+
+    /**
+     * Adds a project membership to the address book.
+     * The referenced person and project must exist, and the membership must not already exist.
+     */
+    public void addProjectMembership(ProjectMembership membership) {
+        requireNonNull(membership);
+        ensureMembershipReferencesExist(membership);
+        memberships.add(membership);
+    }
+
+    /**
+     * Removes {@code membership} from the address book.
+     * The membership must exist in the address book.
+     */
+    public void removeProjectMembership(ProjectMembership membership) {
+        requireNonNull(membership);
+        memberships.remove(membership);
     }
 
     //// util methods
@@ -140,6 +192,7 @@ public class AddressBook implements ReadOnlyAddressBook {
         return new ToStringBuilder(this)
                 .add("persons", persons)
                 .add("projects", projects)
+                .add("memberships", memberships)
                 .toString();
     }
 
@@ -154,6 +207,11 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @Override
+    public ObservableList<ProjectMembership> getProjectMembershipList() {
+        return memberships.asUnmodifiableObservableList();
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;
@@ -164,11 +222,40 @@ public class AddressBook implements ReadOnlyAddressBook {
             return false;
         }
 
-        return persons.equals(otherAddressBook.persons) && projects.equals(otherAddressBook.projects);
+        return persons.equals(otherAddressBook.persons)
+                && projects.equals(otherAddressBook.projects)
+                && memberships.equals(otherAddressBook.memberships);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(persons, projects);
+        return Objects.hash(persons, projects, memberships);
+    }
+
+    /**
+     * Throws an exception if the membership references a person or project that is not in this address book.
+     */
+    private void ensureMembershipReferencesExist(ProjectMembership membership) {
+        if (!hasPersonId(membership.getPersonId())) {
+            throw new PersonNotFoundException();
+        }
+        if (!hasProjectId(membership.getProjectId())) {
+            throw new ProjectNotFoundException();
+        }
+    }
+
+    /**
+     * Returns true if a person with {@code personId} exists in the address book.
+     */
+    private boolean hasPersonId(PersonId personId) {
+        return persons.containsId(personId);
+    }
+
+    /**
+     * Returns true if a project with {@code projectId} exists in the address book.
+     */
+    private boolean hasProjectId(ProjectId projectId) {
+        return projects.asUnmodifiableObservableList().stream()
+                .anyMatch(project -> project.getProjectId().equals(projectId));
     }
 }
