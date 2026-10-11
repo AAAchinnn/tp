@@ -145,7 +145,9 @@ inspect it only through an unmodifiable list.
 
 `Model` exposes membership lookup and addition through `hasProjectMembership` and `addProjectMembership`.
 `ModelManager` delegates these operations to `AddressBook`, which enforces membership uniqueness and valid entity
-references. Memberships are not yet exposed through Logic commands or the UI.
+references. `AssociateCommand` resolves the displayed contact index and project list index, validates both, and
+creates a membership using the selected entities' IDs. It rejects an existing pair before modifying the model and
+confirms success with both names. The command is not yet registered with the parser or accessible through the UI.
 
 
 <box type="info" seamless>
