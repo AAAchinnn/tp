@@ -1,7 +1,9 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_AMY;
@@ -22,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.logic.commands.AssociateCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -30,12 +33,15 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.project.Project;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
 import seedu.address.testutil.PersonBuilder;
+import seedu.address.testutil.ProjectBuilder;
 
 public class LogicManagerTest {
     private static final IOException DUMMY_IO_EXCEPTION = new IOException("dummy IO exception");
@@ -72,6 +78,54 @@ public class LogicManagerTest {
     public void execute_validCommand_success() throws Exception {
         String listCommand = ListCommand.COMMAND_WORD;
         assertCommandSuccess(listCommand, ListCommand.MESSAGE_SUCCESS, model);
+    }
+
+    @Test
+    public void execute_associateCommand_success() throws Exception {
+        Project project = new ProjectBuilder().withName("CS2103T Team Project").build();
+        model.addPerson(AMY);
+        model.addProject(project);
+        ProjectMembership membership = new ProjectMembership(AMY.getPersonId(), project.getProjectId());
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.addProjectMembership(membership);
+
+        assertCommandSuccess("associate c/1 pr/1",
+                String.format(AssociateCommand.MESSAGE_SUCCESS, AMY.getName(), project.getName()), expectedModel);
+        assertEquals(List.of(membership), model.getAddressBook().getProjectMembershipList());
+    }
+
+    @Test
+    public void execute_associateCommandInvalidSyntax_throwsParseException() {
+        model.addPerson(AMY);
+        model.addProject(new ProjectBuilder().build());
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AssociateCommand.MESSAGE_USAGE);
+
+        assertParseException("associate c/1", expectedMessage);
+        assertParseException("associate c/1 pr/0", expectedMessage);
+        assertParseException("associate c/1 pr/1 x/2", expectedMessage);
+    }
+
+    @Test
+    public void execute_associateCommandInvalidIndices_throwsCommandException() {
+        model.addPerson(AMY);
+        model.addProject(new ProjectBuilder().build());
+
+        assertCommandException("associate c/2 pr/1", MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        assertCommandException("associate c/1 pr/2", MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX);
+    }
+
+    @Test
+    public void execute_associateCommandDuplicate_throwsCommandException() throws Exception {
+        Project project = new ProjectBuilder().withName("CS2103T Team Project").build();
+        model.addPerson(AMY);
+        model.addProject(project);
+        logic.execute("associate c/1 pr/1");
+        Path addressBookPath = temporaryFolder.resolve("addressBook.json");
+        String savedJson = Files.readString(addressBookPath);
+
+        assertCommandException("associate c/1 pr/1",
+                String.format(AssociateCommand.MESSAGE_DUPLICATE_ASSOCIATION, AMY.getName(), project.getName()));
+        assertEquals(savedJson, Files.readString(addressBookPath));
     }
 
     @Test

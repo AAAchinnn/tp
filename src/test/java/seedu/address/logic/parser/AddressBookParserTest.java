@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
+import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,8 +16,11 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.commons.core.index.Index;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AddProjectCommand;
+import seedu.address.logic.commands.AssociateCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.EditCommand;
@@ -45,6 +50,30 @@ public class AddressBookParserTest {
         Person person = new PersonBuilder().build();
         AddCommand command = (AddCommand) parser.parseCommand(PersonUtil.getAddCommand(person));
         assertEquals(new AddCommand(person), command);
+    }
+
+    @Test
+    public void parseCommand_associate() throws Exception {
+        AssociateCommand expectedCommand = new AssociateCommand(INDEX_SECOND_PERSON, Index.fromOneBased(1));
+
+        assertEquals(expectedCommand, parser.parseCommand("associate c/2 pr/1"));
+        assertEquals(expectedCommand, parser.parseCommand("associate pr/1 c/2"));
+    }
+
+    @Test
+    public void parseCommand_associateInvalidArguments_throwsParseException() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AssociateCommand.MESSAGE_USAGE);
+
+        assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand("associate"));
+        assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand("associate c/2 pr/0"));
+        assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand("associate c/2 pr/1 x/3"));
+    }
+
+    @Test
+    public void parseCommand_associateDuplicatePrefix_throwsParseException() {
+        String expectedMessage = Messages.getErrorMessageForDuplicatePrefixes(PREFIX_CONTACT);
+
+        assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand("associate c/1 c/2 pr/1"));
     }
 
     @Test
