@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestClassOrder;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -332,6 +333,31 @@ public class AddressBookTest {
         addMembership(addressBook, ALICE, project);
 
         assertThrows(UnsupportedOperationException.class, () -> addressBook.getProjectMembershipList().clear());
+    }
+
+    @Test
+    public void setPerson_personWithMemberships_preservesMemberships() {
+        Project project = createProject("CS2103T");
+        ProjectMembership membership = addMembership(addressBook, ALICE, project);
+        Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).build();
+
+        addressBook.setPerson(ALICE, editedAlice);
+
+        assertEquals(List.of(membership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void setProject_projectWithMemberships_preservesMemberships() {
+        Project project = createProject("CS2103T");
+        ProjectMembership membership = addMembership(addressBook, ALICE, project);
+        Project editedProject = new Project(
+                new ProjectName("  cs2103t   team  "),
+                new Deadline(LocalDate.of(2026, 12, 1)),
+                new Description("Different details"));
+
+        addressBook.setProject(project, editedProject);
+
+        assertEquals(List.of(membership), addressBook.getProjectMembershipList());
     }
 
     /**
