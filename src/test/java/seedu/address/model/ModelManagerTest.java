@@ -15,12 +15,16 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.membership.exceptions.DuplicateProjectMembershipException;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.exceptions.PersonNotFoundException;
 import seedu.address.model.project.Deadline;
 import seedu.address.model.project.Description;
 import seedu.address.model.project.Project;
 import seedu.address.model.project.ProjectName;
 import seedu.address.model.project.exceptions.DuplicateProjectException;
+import seedu.address.model.project.exceptions.ProjectNotFoundException;
 import seedu.address.testutil.AddressBookBuilder;
 
 public class ModelManagerTest {
@@ -165,6 +169,85 @@ public class ModelManagerTest {
         assertEquals(Optional.of(project), model.findProject(project.getName()));
         assertEquals(Optional.empty(),
                 model.findProject(new ProjectName("Old Project")));
+    }
+
+    @Test
+    public void hasProjectMembership_nullMembership_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.hasProjectMembership(null));
+    }
+
+    @Test
+    public void hasProjectMembership_membershipNotInAddressBook_returnsFalse() {
+        Project project = createProject("CS2103T");
+        modelManager.addPerson(ALICE);
+        modelManager.addProject(project);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+
+        assertFalse(modelManager.hasProjectMembership(membership));
+    }
+
+    @Test
+    public void addProjectMembership_nullMembership_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.addProjectMembership(null));
+    }
+
+    @Test
+    public void addProjectMembership_validMembership_updatesAddressBookAndPreservesFilter() {
+        Model model = modelManager;
+        Project project = createProject("CS2103T");
+        model.addPerson(ALICE);
+        model.addPerson(BENSON);
+        model.addProject(project);
+        model.updateFilteredPersonList(person -> person.equals(BENSON));
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+
+        model.addProjectMembership(membership);
+
+        assertTrue(model.hasProjectMembership(
+                new ProjectMembership(ALICE.getPersonId(), project.getProjectId())));
+        assertEquals(List.of(membership), model.getAddressBook().getProjectMembershipList());
+        assertEquals(List.of(ALICE, BENSON), model.getAddressBook().getPersonList());
+        assertEquals(List.of(project), model.getProjectList());
+        assertEquals(List.of(BENSON), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void addProjectMembership_duplicateMembership_throwsDuplicateProjectMembershipException() {
+        Project project = createProject("CS2103T");
+        modelManager.addPerson(ALICE);
+        modelManager.addProject(project);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        modelManager.addProjectMembership(membership);
+        AddressBook expectedAddressBook = new AddressBook(modelManager.getAddressBook());
+
+        assertThrows(DuplicateProjectMembershipException.class, () -> modelManager.addProjectMembership(
+                new ProjectMembership(ALICE.getPersonId(), project.getProjectId())));
+
+        assertEquals(expectedAddressBook, modelManager.getAddressBook());
+    }
+
+    @Test
+    public void addProjectMembership_unknownPerson_throwsPersonNotFoundException() {
+        Project project = createProject("CS2103T");
+        modelManager.addProject(project);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        AddressBook expectedAddressBook = new AddressBook(modelManager.getAddressBook());
+
+        assertThrows(PersonNotFoundException.class, () -> modelManager.addProjectMembership(membership));
+
+        assertEquals(expectedAddressBook, modelManager.getAddressBook());
+    }
+
+    @Test
+    public void addProjectMembership_unknownProject_throwsProjectNotFoundException() {
+        Project project = createProject("CS2103T");
+        modelManager.addPerson(ALICE);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        AddressBook expectedAddressBook = new AddressBook(modelManager.getAddressBook());
+
+        assertThrows(ProjectNotFoundException.class, () -> modelManager.addProjectMembership(membership));
+
+        assertEquals(expectedAddressBook, modelManager.getAddressBook());
     }
 
     @Test

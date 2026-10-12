@@ -22,6 +22,7 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.ReadOnlyUserPrefs;
+import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.project.Project;
 import seedu.address.model.project.ProjectName;
@@ -172,6 +173,16 @@ public class AddCommandTest {
 
         @Override
         public Optional<Project> findProject(ProjectName name) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public boolean hasProjectMembership(ProjectMembership membership) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
+        public void addProjectMembership(ProjectMembership membership) {
             throw new AssertionError("This method should not be called.");
         }
     }

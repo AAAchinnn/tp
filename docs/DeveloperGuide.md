@@ -143,8 +143,20 @@ Deleting a person or project removes its related memberships, while editing eith
 because its ID remains unchanged. Address book copies and resets include the membership collection, and callers can
 inspect it only through an unmodifiable list.
 
-Membership operations are provided by `AddressBook` in this iteration. They are not yet exposed through `Model`,
-Logic commands, or the UI.
+`Model` exposes membership lookup and addition through `hasProjectMembership` and `addProjectMembership`.
+`ModelManager` delegates these operations to `AddressBook`, which enforces membership uniqueness and valid entity
+references. `AssociateCommand` resolves the displayed contact index and project list index, validates both, and
+creates a membership using the selected entities' IDs. It rejects an existing pair before modifying the model and
+confirms success with both names. `AddressBookParser` routes `associate` to `AssociateCommandParser`, which requires
+one `c/` prefix and one `pr/` prefix, rejects a non-empty preamble, and parses both values with `ParserUtil#parseIndex`.
+Syntax errors include the command usage message, while repeated prefixes retain the standard duplicate-field
+diagnostic. The parser checks positive-integer syntax; the command checks the indices against the model lists.
+
+The Contacts tab displays `Model#getFilteredPersonList()`, while the Projects tab displays `Model#getProjectList()`
+through `Logic#getProjectList()` and `ProjectListPanel`. The project list is neither sorted nor filtered by the UI,
+and project cards are numbered from 1 in list order. `pr/PROJECT_INDEX` uses that number, not the UUID shown beside
+`ID:` on the card. Switching tabs does not change the lists or reset the contact filter. Projects and memberships
+remain session-only until their persistence is implemented.
 
 
 <box type="info" seamless>
@@ -459,8 +471,8 @@ Projects and memberships exist only for the active application session; only con
 
 1. User requests to view all contacts
 2. UniTeam displays the contact list
-3. User requests to assign a contact from the displayed list to an existing project
-4. UniTeam saves the association between the contact and the project and displays a confirmation
+3. User requests to associate a displayed contact with an existing project using `c/CONTACT_INDEX pr/PROJECT_INDEX`
+4. UniTeam records the association for the current session and displays a confirmation with both names
 
    Use case ends.
 
@@ -470,21 +482,21 @@ Projects and memberships exist only for the active application session; only con
 
   Use case ends.
 
-* 3a. The supplied contact index is missing, is not a positive integer, or does not correspond to a contact in the displayed list.
+* 3a. The contact index is missing, empty, repeated, not a positive integer, or outside the displayed contact list.
 
     * 3a1. UniTeam displays an error message.
 
       Use case resumes at step 3.
 
-* 3b. The project name is missing or empty, or is supplied more than once.
+* 3b. The project index is missing, empty, repeated, or not a positive integer.
 
     * 3b1. UniTeam displays an error message.
 
       Use case resumes at step 3.
 
-* 3c. The specified project does not exist.
+* 3c. The supplied project index does not correspond to an existing project.
 
-    * 3c1. UniTeam informs the user that the project does not exist.
+    * 3c1. UniTeam informs the user that the project index is invalid.
 
       Use case resumes at step 3.
 
@@ -608,6 +620,71 @@ testers are expected to do more *exploratory* testing.
       Expected: Similar to previous.
 
 1. _{ more test cases … }_
+
+### Associating a contact with a project
+
+1. Successful association and duplicate rejection
+
+   1. Prerequisites: Use a disposable copy of the app in a fresh session with at least two contacts. Execute `list`
+      and inspect the Contacts tab to note the first two contacts. Execute
+      `addproject n/Association test project d/2026-11-13`, then open the Projects tab and confirm that the project
+      is numbered 1. Use this number for `pr/`, not the UUID beside `ID:`. Projects are not loaded across sessions
+      in this iteration.
+
+   1. With the Contacts tab selected, execute `associate c/2 pr/1`.<br>
+      Expected: The status message names the second displayed contact and `Association test project`.
+
+   1. Switch to the Projects tab and repeat `associate c/2 pr/1`.<br>
+      Expected: An already-associated error names both entities. No second membership is added; switching tabs
+      did not change the indices.
+
+   1. With the Projects tab still selected, execute `associate pr/1 c/1`.<br>
+      Expected: Association succeeds for the first contact in the Contacts tab. One project can have multiple
+      contacts, and association works from either tab.
+
+1. Unsuccessful association attempts
+
+   1. Prerequisites: Keep the preceding session, with only project 1 and the two successful associations.
+
+   1. Test cases: `associate`, `associate c/2`, `associate c/ pr/1`, `associate c/0 pr/1`,
+      `associate c/2 proj/1`, and `associate c/2 pr/1 x/3`.<br>
+      Expected: Each command shows the `associate` usage message and creates no membership.
+
+   1. Test cases: `associate c/1 c/2 pr/1` and `associate c/2 pr/1 pr/1`.<br>
+      Expected: The duplicate-field diagnostic identifies `c/` and `pr/`, respectively. No membership is added.
+
+   1. Test case: `associate c/10000 pr/1`<br>
+      Expected: The status message reports an invalid contact index. No membership is added.
+
+   1. Test case: `associate c/1 pr/2`<br>
+      Expected: The status message reports an invalid project index. No membership is added.
+
+   1. Repeat both successful associations from the preceding scenario, trying each from both tabs.<br>
+      Expected: Both still produce already-associated errors; the rejected commands preserved existing memberships.
+
+1. Association using a filtered contact list
+
+   1. Create another project using `addproject n/Filtered association test d/2026-11-13`. Open the Projects tab and
+      confirm that `Association test project` is still numbered 1 and `Filtered association test` is numbered 2.
+
+   1. Select the Contacts tab and use `find` with a name keyword that matches only the second contact from the
+      original list. Confirm that the matching contact is now numbered 1.
+
+   1. Switch to Projects and back to Contacts.<br>
+      Expected: Both project indices remain unchanged, and the Contacts tab still shows only the matching contact.
+
+   1. With the Projects tab selected, execute `associate c/1 pr/2`.<br>
+      Expected: The status message names that contact and `Filtered association test`; contact index 1 refers to the
+      search result rather than the first contact in the full address book.
+
+   1. Test case: `associate c/2 pr/2`<br>
+      Expected: An invalid contact-index error occurs because only one contact is displayed.
+
+   1. Select the Contacts tab and execute `list`, then `associate c/2 pr/2`.<br>
+      Expected: The already-associated error identifies the same contact and project, confirming that membership
+      refers to the selected contact's ID rather than its temporary search-result index.
+
+Projects and memberships are not serialized in this iteration, so these associations do not survive a restart.
 
 ### Saving data
 

@@ -144,6 +144,33 @@ Examples:
 * `list` followed by `delete 2` deletes the 2nd person in the address book.
 * `find Betsy` followed by `delete 1` deletes the 1st person in the results of the `find` command.
 
+### Associating a contact with a project: `associate`
+
+Records that a contact is involved in an existing project.
+
+Format: `associate c/CONTACT_INDEX pr/PROJECT_INDEX`
+
+* `CONTACT_INDEX` refers to the numbered contact in the Contacts tab, including results from `find`.
+* `PROJECT_INDEX` refers to the numbered project in the Projects tab, not the UUID shown beside `ID:`.
+* Both indices must be positive integers. Each prefix must appear exactly once; their order does not matter.
+* An existing contact-project pair cannot be associated again. A contact can belong to multiple projects, and a
+  project can involve multiple contacts.
+* The success message identifies the contact and project. Invalid syntax, out-of-range indices, and duplicate
+  associations produce an error and leave existing associations unchanged.
+
+Projects are numbered in the Projects tab starting at 1, in the order they are added with `addproject`.
+Switching tabs does not change either list's indices or reset the contact search results.
+Projects and associations last only for the current application session.
+
+Example, in a new session with at least two contacts:
+
+1. `list` shows all contacts in the Contacts tab; note the second contact's name.
+2. `addproject n/CS2103T Team Project d/2026-11-13` creates project 1.
+3. Open the Projects tab and confirm that `CS2103T Team Project` is numbered 1.
+4. `associate c/2 pr/1` associates the second contact in the Contacts tab with that project.
+
+After `find Betsy`, use `associate c/1 pr/1` to associate the first search result with project 1 instead.
+
 ### Clearing all entries: `clear`
 
 Clears all entries from the address book.
@@ -158,7 +185,8 @@ Format: `exit`
 
 ### Saving the data
 
-AddressBook automatically saves data after every command. You do not need to save manually.
+AddressBook automatically saves contacts after every successful command. You do not need to save manually.
+Projects and contact-project associations are not yet saved and are lost when the application closes.
 
 ### Editing the data file
 
@@ -196,6 +224,7 @@ _Details coming soon ..._
 Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Add**    | `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... ` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665 t/friend t/colleague`
+**Associate** | `associate c/CONTACT_INDEX pr/PROJECT_INDEX`<br> e.g., `associate c/2 pr/1`
 **Clear**  | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
