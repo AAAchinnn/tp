@@ -97,6 +97,14 @@ Shows a list of all persons in the address book.
 
 Format: `list`
 
+### Listing all projects: `listprojects`
+
+Lists projects in the order they were added, including each project's deadline and description.
+
+Format: `listprojects`
+
+If no projects exist, UniTeam reports that there are no projects to list.
+
 ### Editing a person: `edit`
 
 Edits an existing person in the address book.
@@ -230,4 +238,5 @@ Action     | Format, Examples
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
+**List projects** | `listprojects`
 **Help**   | `help`

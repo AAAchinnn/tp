@@ -621,6 +621,14 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
+### Listing projects
+
+1. In a fresh session, run `listprojects`.<br>
+   Expected: UniTeam reports that there are no projects to list.
+
+1. Add projects with and without descriptions using `addproject`, then run `listprojects`.<br>
+   Expected: Projects are shown in insertion order with their displayed number, deadline, and description.
+
 ### Associating a contact with a project
 
 1. Successful association and duplicate rejection
