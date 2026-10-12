@@ -222,6 +222,10 @@ rejects duplicate ID pairs and memberships with unknown IDs, and removes related
 is deleted. During reset, persons and projects are installed before memberships so that membership references can be
 validated against the replacement data.
 
+The `listmembers` command resolves a project name to its `Project`, then asks the model for that project's contacts.
+`AddressBook#getProjectMembers` matches membership IDs and returns contacts in address-book order; command logic does
+not inspect or mutate the membership collection directly.
+
 #### Design considerations
 
 **Aspect: Where to store project memberships:**
@@ -693,6 +697,23 @@ testers are expected to do more *exploratory* testing.
       refers to the selected contact's ID rather than its temporary search-result index.
 
 Projects and memberships are not serialized in this iteration, so these associations do not survive a restart.
+
+### Listing contacts in a project
+
+1. Use `addproject n/CS2103T Team Project d/2026-11-13`, then associate two contacts with project 1 using
+   `associate c/1 pr/1` and `associate c/2 pr/1`.
+
+1. Run `listmembers pr/CS2103T Team Project`.<br>
+   Expected: Both associated contact names are displayed in contact-list order with the total count.
+
+1. Run `listmembers pr/Unknown Project`.<br>
+   Expected: UniTeam reports that the project does not exist.
+
+1. Add a second project without associating any contacts, then run `listmembers pr/Second Project`.<br>
+   Expected: UniTeam reports that no contacts are associated with that project.
+
+1. Try `listmembers`, `listmembers pr/`, and `listmembers pr/CS2103T pr/Second Project`.<br>
+   Expected: The command displays a useful format or duplicate-prefix error, and does not change project data.
 
 ### Saving data
 
