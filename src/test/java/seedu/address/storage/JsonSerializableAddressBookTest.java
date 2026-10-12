@@ -124,7 +124,7 @@ public class JsonSerializableAddressBookTest {
 
     @Test
     public void toModelType_jsonWithoutPersons_returnsEmptyPersonList() throws Exception {
-        JsonSerializableAddressBook data = new JsonSerializableAddressBook(null, List.of());
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(null, List.of(), List.of());
 
         assertEquals(List.of(), data.toModelType().getPersonList());
     }
