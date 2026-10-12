@@ -29,6 +29,8 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
+import seedu.address.model.project.Project;
+import seedu.address.testutil.ProjectBuilder;
 
 public class JsonAddressBookStorageTest {
     private static final Path TEST_DATA_FOLDER = Paths.get("src", "test", "data", "JsonAddressBookStorageTest");
@@ -222,6 +224,22 @@ public class JsonAddressBookStorageTest {
         assertEquals(original.getPersonList().stream().map(Person::getPersonId).toList(),
                 readBack.getPersonList().stream().map(Person::getPersonId).toList());
 
+    }
+
+    @Test
+    public void readAndSaveAddressBook_withProject_preservesProjectIdAndDetails() throws Exception {
+        AddressBook original = getTypicalAddressBook();
+        Project project = new ProjectBuilder().withName("CS2103T Project").build();
+        original.addProject(project);
+        Path filePath = testFolder.resolve("AddressBookWithProject.json");
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        storage.saveAddressBook(original);
+        ReadOnlyAddressBook readBack = storage.readAddressBook().get();
+
+        assertEquals(original, new AddressBook(readBack));
+        assertEquals(List.of(project), readBack.getProjectList());
+        assertEquals(project.getProjectId(), readBack.getProjectList().get(0).getProjectId());
     }
 
     @Test
