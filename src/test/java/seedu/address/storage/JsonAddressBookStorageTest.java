@@ -27,6 +27,7 @@ import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.project.Project;
@@ -240,6 +241,23 @@ public class JsonAddressBookStorageTest {
         assertEquals(original, new AddressBook(readBack));
         assertEquals(List.of(project), readBack.getProjectList());
         assertEquals(project.getProjectId(), readBack.getProjectList().get(0).getProjectId());
+    }
+
+    @Test
+    public void readAndSaveAddressBook_withMembership_preservesAssociation() throws Exception {
+        AddressBook original = getTypicalAddressBook();
+        Project project = new ProjectBuilder().withName("CS2103T Project").build();
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        original.addProject(project);
+        original.addProjectMembership(membership);
+        Path filePath = testFolder.resolve("AddressBookWithMembership.json");
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        storage.saveAddressBook(original);
+        ReadOnlyAddressBook readBack = storage.readAddressBook().get();
+
+        assertEquals(original, new AddressBook(readBack));
+        assertEquals(List.of(membership), readBack.getProjectMembershipList());
     }
 
     @Test

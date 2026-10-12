@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
+import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.project.Project;
@@ -106,7 +107,8 @@ public class JsonSerializableAddressBookTest {
     @Test
     public void toModelType_duplicateNamesAndIds_reportsDuplicatePerson() {
         JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(
-                new JsonAdaptedPerson(TypicalPersons.ALICE), new JsonAdaptedPerson(TypicalPersons.ALICE)), List.of());
+                new JsonAdaptedPerson(TypicalPersons.ALICE), new JsonAdaptedPerson(TypicalPersons.ALICE)),
+                List.of(), List.of());
 
         assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_PERSON,
                 data::toModelType);
@@ -147,7 +149,7 @@ public class JsonSerializableAddressBookTest {
                 .withName("Project Beta")
                 .build();
         JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(), List.of(
-                new JsonAdaptedProject(original), new JsonAdaptedProject(duplicateId)));
+                new JsonAdaptedProject(original), new JsonAdaptedProject(duplicateId)), List.of());
 
         assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_PROJECT_ID,
                 data::toModelType);
@@ -161,10 +163,73 @@ public class JsonSerializableAddressBookTest {
                 .withName("project alpha")
                 .build();
         JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(), List.of(
-                new JsonAdaptedProject(original), new JsonAdaptedProject(duplicateName)));
+                new JsonAdaptedProject(original), new JsonAdaptedProject(duplicateName)), List.of());
 
         assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_PROJECT,
                 data::toModelType);
+    }
+
+    @Test
+    public void toModelType_legacyFileWithoutMemberships_returnsEmptyMembershipList() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(TYPICAL_PERSONS_FILE,
+                JsonSerializableAddressBook.class).get();
+
+        assertEquals(List.of(), dataFromFile.toModelType().getProjectMembershipList());
+    }
+
+    @Test
+    public void toModelType_validMembership_preservesAssociation() throws Exception {
+        AddressBook addressBook = TypicalPersons.getTypicalAddressBook();
+        Project project = new ProjectBuilder().withName("CS2103T Project").build();
+        ProjectMembership membership = new ProjectMembership(
+                TypicalPersons.ALICE.getPersonId(), project.getProjectId());
+        addressBook.addProject(project);
+        addressBook.addProjectMembership(membership);
+
+        AddressBook restored = new JsonSerializableAddressBook(addressBook).toModelType();
+
+        assertEquals(List.of(membership), restored.getProjectMembershipList());
+    }
+
+    @Test
+    public void toModelType_duplicateMemberships_throwsIllegalValueException() {
+        Project project = new ProjectBuilder().withName("CS2103T Project").build();
+        ProjectMembership membership = new ProjectMembership(
+                TypicalPersons.ALICE.getPersonId(), project.getProjectId());
+        JsonAdaptedProjectMembership adaptedMembership = new JsonAdaptedProjectMembership(membership);
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(
+                List.of(new JsonAdaptedPerson(TypicalPersons.ALICE)),
+                List.of(new JsonAdaptedProject(project)),
+                List.of(adaptedMembership, adaptedMembership));
+
+        assertThrows(IllegalValueException.class,
+                JsonSerializableAddressBook.MESSAGE_DUPLICATE_PROJECT_MEMBERSHIP, data::toModelType);
+    }
+
+    @Test
+    public void toModelType_membershipWithMissingPerson_throwsIllegalValueException() {
+        Project project = new ProjectBuilder().withName("CS2103T Project").build();
+        ProjectMembership membership = new ProjectMembership(PersonId.generate(), project.getProjectId());
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(
+                List.of(),
+                List.of(new JsonAdaptedProject(project)),
+                List.of(new JsonAdaptedProjectMembership(membership)));
+
+        assertThrows(IllegalValueException.class,
+                JsonSerializableAddressBook.MESSAGE_MEMBERSHIP_PERSON_NOT_FOUND, data::toModelType);
+    }
+
+    @Test
+    public void toModelType_membershipWithMissingProject_throwsIllegalValueException() {
+        ProjectMembership membership = new ProjectMembership(
+                TypicalPersons.ALICE.getPersonId(), ProjectId.generate());
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(
+                List.of(new JsonAdaptedPerson(TypicalPersons.ALICE)),
+                List.of(),
+                List.of(new JsonAdaptedProjectMembership(membership)));
+
+        assertThrows(IllegalValueException.class,
+                JsonSerializableAddressBook.MESSAGE_MEMBERSHIP_PROJECT_NOT_FOUND, data::toModelType);
     }
 
 }
