@@ -179,6 +179,22 @@ Example, in a new session with at least two contacts:
 
 After `find Betsy`, use `associate c/1 pr/1` to associate the first search result with project 1 instead.
 
+### Listing project members: `listmembers`
+
+Lists the contacts associated with a project, in the order they appear in the contact list.
+
+Format: `listmembers pr/PROJECT_NAME`
+
+Example:
+
+1. Create a project with `addproject n/CS2103T Team Project d/2026-11-13`.
+2. Associate a contact with it, for example `associate c/1 pr/1`.
+3. Run `listmembers pr/CS2103T Team Project` to see the associated contact names.
+
+If the project exists but has no associated contacts, UniTeam reports that no contacts are associated with it.
+If no project has the specified name, UniTeam reports that the project does not exist. Project names are matched
+without regard to letter case and with whitespace normalised.
+
 ### Clearing all entries: `clear`
 
 Clears all entries from the address book.
@@ -239,4 +255,5 @@ Action     | Format, Examples
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
 **List projects** | `listprojects`
+**List members** | `listmembers pr/PROJECT_NAME`<br> e.g., `listmembers pr/CS2103T Team Project`
 **Help**   | `help`

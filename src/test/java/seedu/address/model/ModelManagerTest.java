@@ -142,6 +142,23 @@ public class ModelManagerTest {
     }
 
     @Test
+    public void getProjectMembers_validProject_returnsAssociatedContacts() {
+        ModelManager model = new ModelManager();
+        Project project = createProject("CS2103T");
+        model.addPerson(ALICE);
+        model.addPerson(BENSON);
+        model.addProject(project);
+        model.addProjectMembership(new ProjectMembership(ALICE.getPersonId(), project.getProjectId()));
+
+        assertEquals(List.of(ALICE), model.getProjectMembers(project));
+    }
+
+    @Test
+    public void getProjectMembers_nullProject_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.getProjectMembers(null));
+    }
+
+    @Test
     public void constructor_withProjects_preservesProjects() {
         AddressBook addressBook = new AddressBook();
         Project project = createProject("CS2103T");
