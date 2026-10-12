@@ -121,6 +121,13 @@ public class JsonSerializableAddressBookTest {
     }
 
     @Test
+    public void toModelType_jsonWithoutPersons_returnsEmptyPersonList() throws Exception {
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(null, List.of());
+
+        assertEquals(List.of(), data.toModelType().getPersonList());
+    }
+
+    @Test
     public void toModelType_validProjects_preservesProjectIdsAndDetails() throws Exception {
         Project project = new ProjectBuilder().withName("CS2103T Project").build();
         AddressBook addressBook = TypicalPersons.getTypicalAddressBook();
