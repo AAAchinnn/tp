@@ -213,6 +213,39 @@ public class AddressBookTest {
     }
 
     @Test
+    public void getProjectMembers_memberships_returnMembersInAddressBookOrder() {
+        Project project = createProject("CS2103T");
+        Project otherProject = createProject("Orbital");
+        addressBook.addPerson(ALICE);
+        addressBook.addPerson(BOB);
+        addressBook.addProject(project);
+        addressBook.addProject(otherProject);
+        addressBook.addProjectMembership(new ProjectMembership(BOB.getPersonId(), project.getProjectId()));
+        addressBook.addProjectMembership(new ProjectMembership(ALICE.getPersonId(), otherProject.getProjectId()));
+        addressBook.addProjectMembership(new ProjectMembership(ALICE.getPersonId(), project.getProjectId()));
+
+        assertEquals(List.of(ALICE, BOB), addressBook.getProjectMembers(project));
+    }
+
+    @Test
+    public void getProjectMembers_noMemberships_returnsEmptyList() {
+        Project project = createProject("CS2103T");
+        addressBook.addProject(project);
+
+        assertTrue(addressBook.getProjectMembers(project).isEmpty());
+    }
+
+    @Test
+    public void getProjectMembers_unknownProject_throwsProjectNotFoundException() {
+        assertThrows(ProjectNotFoundException.class, () -> addressBook.getProjectMembers(createProject("Unknown")));
+    }
+
+    @Test
+    public void getProjectMembers_nullProject_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> addressBook.getProjectMembers(null));
+    }
+
+    @Test
     public void addProjectMembership_unknownPerson_throwsPersonNotFoundException() {
         Project project = createProject("CS2103T");
         addressBook.addProject(project);

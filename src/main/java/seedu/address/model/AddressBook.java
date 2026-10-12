@@ -4,6 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javafx.collections.ObservableList;
 import seedu.address.commons.util.ToStringBuilder;
@@ -174,6 +176,27 @@ public class AddressBook implements ReadOnlyAddressBook {
         requireNonNull(membership);
         ensureMembershipReferencesExist(membership);
         memberships.add(membership);
+    }
+
+    /**
+     * Returns the contacts associated with {@code project}, preserving address-book order.
+     *
+     * @throws ProjectNotFoundException if the project is not in this address book.
+     */
+    public List<Person> getProjectMembers(Project project) {
+        requireNonNull(project);
+        if (!projects.contains(project)) {
+            throw new ProjectNotFoundException();
+        }
+
+        Set<PersonId> memberIds = memberships.asUnmodifiableObservableList().stream()
+                .filter(membership -> membership.getProjectId().equals(project.getProjectId()))
+                .map(ProjectMembership::getPersonId)
+                .collect(Collectors.toSet());
+
+        return persons.asUnmodifiableObservableList().stream()
+                .filter(person -> memberIds.contains(person.getPersonId()))
+                .toList();
     }
 
     /**

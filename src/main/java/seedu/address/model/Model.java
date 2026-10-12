@@ -1,5 +1,6 @@
 package seedu.address.model;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -107,6 +108,12 @@ public interface Model {
      * Returns the project with the given name, or an empty Optional if none exists.
      */
     Optional<Project> findProject(ProjectName name);
+
+    /**
+     * Returns contacts associated with {@code project}, preserving address-book order.
+     * The project must exist in the address book.
+     */
+    List<Person> getProjectMembers(Project project);
 
     /**
      * Returns true if {@code membership} exists in the address book.
