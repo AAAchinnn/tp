@@ -34,20 +34,20 @@ public class ListMembersCommandParserTest {
     @Test
     public void parseCommand_duplicateProjectPrefix_throwsParseException() {
         String expectedMessage = Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PROJECT);
-        assertThrows(ParseException.class, expectedMessage,
-                () -> parser.parseCommand("listmembers pr/CS2103T pr/Orbital"));
+        String command = "listmembers pr/CS2103T pr/Orbital";
+        assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand(command));
     }
 
     @Test
     public void parseCommand_emptyProjectName_throwsParseException() {
-        assertThrows(ParseException.class, "PROJECT_NAME cannot be empty.",
-                () -> parser.parseCommand("listmembers pr/"));
+        String command = "listmembers pr/";
+        assertThrows(ParseException.class, "PROJECT_NAME cannot be empty.", () -> parser.parseCommand(command));
     }
 
     @Test
     public void parseCommand_unexpectedPreamble_throwsParseException() {
         String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListMembersCommand.MESSAGE_USAGE);
-        assertThrows(ParseException.class, expectedMessage,
-                () -> parser.parseCommand("listmembers extra pr/CS2103T"));
+        String command = "listmembers extra pr/CS2103T";
+        assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand(command));
     }
 }

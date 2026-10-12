@@ -32,18 +32,16 @@ public class ListMembersCommandTest {
 
     @Test
     public void execute_nullModel_throwsNullPointerException() {
-        assertThrows(NullPointerException.class,
-                () -> new ListMembersCommand(project.getName()).execute(null));
+        assertThrows(NullPointerException.class, () -> new ListMembersCommand(project.getName()).execute(null));
     }
 
     @Test
     public void execute_unknownProject_throwsCommandException() {
         Model model = new ModelManager();
         ListMembersCommand command = new ListMembersCommand(project.getName());
+        String expectedMessage = String.format(ListMembersCommand.MESSAGE_PROJECT_NOT_FOUND, project.getName());
 
-        assertThrows(CommandException.class,
-                String.format(ListMembersCommand.MESSAGE_PROJECT_NOT_FOUND, project.getName()),
-                () -> command.execute(model));
+        assertThrows(CommandException.class, expectedMessage, () -> command.execute(model));
     }
 
     @Test
@@ -52,9 +50,9 @@ public class ListMembersCommandTest {
         model.addProject(project);
 
         CommandResult result = new ListMembersCommand(project.getName()).execute(model);
+        String expectedMessage = String.format(ListMembersCommand.MESSAGE_NO_MEMBERS, project.getName());
 
-        assertEquals(String.format(ListMembersCommand.MESSAGE_NO_MEMBERS, project.getName()),
-                result.getFeedbackToUser());
+        assertEquals(expectedMessage, result.getFeedbackToUser());
     }
 
     @Test
@@ -68,8 +66,8 @@ public class ListMembersCommandTest {
 
         CommandResult result = new ListMembersCommand(project.getName()).execute(model);
 
-        assertEquals("Contacts in project \"CS2103T Team Project\" (2):\n1. Alice Pauline\n2. Benson Meier",
-                result.getFeedbackToUser());
+        String expectedMessage = "Contacts in project \"CS2103T Team Project\" (2):\n1. Alice Pauline\n2. Benson Meier";
+        assertEquals(expectedMessage, result.getFeedbackToUser());
     }
 
     @Test
