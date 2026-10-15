@@ -12,6 +12,7 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -29,6 +30,7 @@ import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
+import seedu.address.logic.commands.ListProjectsCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -79,7 +81,7 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_clear() throws Exception {
         assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
-        assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + " 3") instanceof ClearCommand);
+        assertTrue(parser.parseCommand(" \t" + ClearCommand.COMMAND_WORD + " \t") instanceof ClearCommand);
     }
 
     @Test
@@ -101,7 +103,7 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_exit() throws Exception {
         assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD) instanceof ExitCommand);
-        assertTrue(parser.parseCommand(ExitCommand.COMMAND_WORD + " 3") instanceof ExitCommand);
+        assertTrue(parser.parseCommand(" \t" + ExitCommand.COMMAND_WORD + " \t") instanceof ExitCommand);
     }
 
     @Test
@@ -115,13 +117,38 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_help() throws Exception {
         assertTrue(parser.parseCommand(HelpCommand.COMMAND_WORD) instanceof HelpCommand);
-        assertTrue(parser.parseCommand(HelpCommand.COMMAND_WORD + " 3") instanceof HelpCommand);
+        assertTrue(parser.parseCommand(" \t" + HelpCommand.COMMAND_WORD + " \t") instanceof HelpCommand);
     }
 
     @Test
     public void parseCommand_list() throws Exception {
         assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD) instanceof ListCommand);
-        assertTrue(parser.parseCommand(ListCommand.COMMAND_WORD + " 3") instanceof ListCommand);
+        assertTrue(parser.parseCommand(" \t" + ListCommand.COMMAND_WORD + " \t") instanceof ListCommand);
+    }
+
+    @Test
+    public void parseCommand_listProjects() throws Exception {
+        assertTrue(parser.parseCommand(ListProjectsCommand.COMMAND_WORD) instanceof ListProjectsCommand);
+        assertTrue(parser.parseCommand(" \t" + ListProjectsCommand.COMMAND_WORD + " \t")
+                instanceof ListProjectsCommand);
+    }
+
+    @Test
+    public void parseCommand_parameterFreeCommandsWithExtraArguments_throwsParseException() {
+        Map<String, String> usages = Map.of(
+                ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_USAGE,
+                ExitCommand.COMMAND_WORD, ExitCommand.MESSAGE_USAGE,
+                HelpCommand.COMMAND_WORD, HelpCommand.MESSAGE_USAGE,
+                ListCommand.COMMAND_WORD, ListCommand.MESSAGE_USAGE,
+                ListProjectsCommand.COMMAND_WORD, ListProjectsCommand.MESSAGE_USAGE);
+
+        usages.forEach((commandWord, usage) -> {
+            String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, usage);
+            for (String arguments : List.of(" 3", " unexpected text", " n/Alice", "\t123 \t")) {
+                assertThrows(ParseException.class,
+                        expectedMessage, () -> parser.parseCommand(commandWord + arguments));
+            }
+        });
     }
 
     @Test

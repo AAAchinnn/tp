@@ -14,6 +14,8 @@ import seedu.address.model.project.Project;
 public class ListProjectsCommand extends Command {
 
     public static final String COMMAND_WORD = "listprojects";
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Lists all projects in UniTeam.\n"
+            + "Example: " + COMMAND_WORD;
     public static final String MESSAGE_EMPTY = "There are no projects to list.";
     public static final String MESSAGE_SUCCESS = "Listed %1$d project(s):\n%2$s";
 

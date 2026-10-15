@@ -26,6 +26,7 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AssociateCommand;
+import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -80,6 +81,28 @@ public class LogicManagerTest {
     public void execute_validCommand_success() throws Exception {
         String listCommand = ListCommand.COMMAND_WORD;
         assertCommandSuccess(listCommand, ListCommand.MESSAGE_SUCCESS, model);
+    }
+
+    @Test
+    public void execute_clearWithExtraArguments_preservesDataAndSavedFile() throws Exception {
+        Project project = new ProjectBuilder().build();
+        model.addPerson(AMY);
+        model.addProject(project);
+        model.addProjectMembership(new ProjectMembership(AMY.getPersonId(), project.getProjectId()));
+        logic.execute(ListCommand.COMMAND_WORD);
+        Path addressBookPath = temporaryFolder.resolve("addressBook.json");
+        String savedJson = Files.readString(addressBookPath);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ClearCommand.MESSAGE_USAGE);
+        assertThrows(ParseException.class, expectedMessage, () -> logic.execute("clear 3"));
+
+        assertEquals(expectedModel, model);
+        assertEquals(savedJson, Files.readString(addressBookPath));
+        assertEquals(List.of(AMY), model.getAddressBook().getPersonList());
+        assertEquals(List.of(project), model.getAddressBook().getProjectList());
+        assertEquals(List.of(new ProjectMembership(AMY.getPersonId(), project.getProjectId())),
+                model.getAddressBook().getProjectMembershipList());
     }
 
     @Test
