@@ -761,12 +761,12 @@ Projects and memberships are not serialized in this iteration, so these associat
 
    1. Use a disposable copy of the app and data file. Close the app and remove a closing brace from `data/addressbook.json`. Record the resulting file contents.
    1. Restart the app and execute `list`, `listprojects`, `help`, a valid `add` command, and `exit`.<br>
-      Expected: The app starts with an empty address book. Each successful command warns that saving is disabled and session changes will be lost. Help and exit still work. The original file contents remain unchanged.
+      Expected: The app starts with an empty address book and shows an error dialog with the absolute data file path and recovery instructions. After dismissing the dialog, a saving-disabled warning remains in the status bar, including after commands. Each successful command warns that saving is disabled and session changes will be lost. Help and exit still work. The original file contents remain unchanged. Hover over the status bar path to see its full value if it is truncated.
    1. Restart again without repairing the file and execute `list`.<br>
       Expected: Saving remains disabled and the original file contents remain unchanged.
    1. Close the app, restore a valid backup, restart, add a contact, and restart again.<br>
-      Expected: The restored data and new contact load normally; saving is enabled.
+      Expected: The restored data and new contact load normally; saving is enabled. No loading-error dialog or saving-disabled status warning appears.
    1. Close the app and move the disposable data file elsewhere, then restart and execute `list`.<br>
-      Expected: Sample contacts are loaded and saved normally; no saving-disabled warning appears.
+      Expected: Sample contacts are loaded and saved normally; no loading-error dialog or saving-disabled warning appears. Moving the original file while the app is closed is also the intentional fresh-start procedure.
 
 1. _{ more test cases … }_
