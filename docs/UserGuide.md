@@ -193,6 +193,31 @@ Example, in a new session with at least two contacts:
 
 After `find Betsy`, use `associate c/1 pr/1` to associate the first search result with project 1 instead.
 
+### Dissociating a contact from a project: `dissociate`
+
+Removes an existing association between a contact and a project while retaining their information.
+
+Format: `dissociate c/CONTACT_INDEX pr/PROJECT_INDEX`
+
+* `CONTACT_INDEX` refers to the numbered contact in the Contacts tab, including results from `find`.
+* `PROJECT_INDEX` refers to the numbered project in the Projects tab, not the UUID shown beside `ID:`.
+* Both indices must be positive integers. Each prefix must appear exactly once; their order does not matter.
+* Only the selected association is removed. The contact, project, and all other associations remain unchanged.
+* The success message identifies the contact and project. Invalid syntax, out-of-range indices, and a pair with no
+  existing association produce an error without changing the data.
+* Successful removal is saved automatically and remains in effect after restarting UniTeam.
+
+Switching tabs does not change either list's indices or reset the contact search results.
+
+Example, with at least two displayed contacts and project 1 named `CS2103T Team Project`:
+
+1. `associate c/2 pr/1` creates the association if it does not already exist.
+2. `dissociate c/2 pr/1` removes that association while retaining the contact and project.
+3. `listmembers pr/CS2103T Team Project` confirms that the contact is no longer a member; other members remain.
+
+After `find Betsy`, use `dissociate c/1 pr/1` to remove the first search result's association with project 1.
+Repeating dissociation for the same pair reports that the contact is not associated with the project.
+
 ### Listing project members: `listmembers`
 
 Lists the contacts associated with a project, in the order they appear in the contact list.
@@ -269,6 +294,7 @@ Action     | Format, Examples
 **Associate** | `associate c/CONTACT_INDEX pr/PROJECT_INDEX`<br> e.g., `associate c/2 pr/1`
 **Clear**  | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
+**Dissociate** | `dissociate c/CONTACT_INDEX pr/PROJECT_INDEX`<br> e.g., `dissociate c/2 pr/1`
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`

@@ -147,6 +147,12 @@ public class ModelManager implements Model {
         addressBook.addProjectMembership(membership);
     }
 
+    @Override
+    public void removeProjectMembership(ProjectMembership membership) {
+        requireNonNull(membership);
+        addressBook.removeProjectMembership(membership);
+    }
+
     //=========== Filtered Person List Accessors =============================================================
 
     /**
