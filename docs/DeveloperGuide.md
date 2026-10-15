@@ -768,5 +768,7 @@ Projects and memberships are not serialized in this iteration, so these associat
       Expected: The restored data and new contact load normally; saving is enabled. No loading-error dialog or saving-disabled status warning appears.
    1. Close the app and move the disposable data file elsewhere, then restart and execute `list`.<br>
       Expected: Sample contacts are loaded and saved normally; no loading-error dialog or saving-disabled warning appears. Moving the original file while the app is closed is also the intentional fresh-start procedure.
+   1. Where filesystem permissions allow it, close the disposable app and deny access to the data file's parent directory while keeping the file in place. Restart the app, then restore the permissions after testing.<br>
+      Expected: If file absence cannot be established, reading is attempted and the access failure produces a loading-error dialog with saving disabled, rather than loading sample contacts. The original file remains unchanged.
 
 1. _{ more test cases … }_
