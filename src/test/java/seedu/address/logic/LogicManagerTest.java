@@ -23,11 +23,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AssociateCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -176,6 +178,32 @@ public class LogicManagerTest {
     public void execute_storageThrowsIoException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_IO_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_ERROR_FORMAT, DUMMY_IO_EXCEPTION.getMessage()));
+    }
+
+    @Test
+    public void execute_loadingFailure_preservesFileAndCommandResultFlags() throws Exception {
+        Path filePath = temporaryFolder.resolve("invalidAddressBook.json");
+        String invalidJson = "{ invalid JSON";
+        Files.writeString(filePath, invalidJson);
+        StorageManager storage = new StorageManager(new JsonAddressBookStorage(filePath),
+                new JsonUserPrefsStorage(temporaryFolder.resolve("userPrefs.json")));
+        assertThrows(DataLoadingException.class, () -> storage.readAddressBook());
+        logic = new LogicManager(model, storage);
+        Model expectedModel = new ModelManager();
+        String addCommand = AddCommand.COMMAND_WORD + NAME_DESC_AMY + PHONE_DESC_AMY
+                + EMAIL_DESC_AMY + ADDRESS_DESC_AMY;
+
+        for (String commandText : List.of("list", "listprojects", "help", addCommand, "exit")) {
+            CommandResult expectedResult = new AddressBookParser()
+                    .parseCommand(commandText).execute(expectedModel);
+            CommandResult actualResult = logic.execute(commandText);
+            assertEquals(new CommandResult(expectedResult.getFeedbackToUser()
+                    + "\nSaving is disabled because the data file could not be loaded."
+                    + " Changes in this session will be lost.",
+                    expectedResult.isShowHelp(), expectedResult.isExit()), actualResult);
+            assertEquals(expectedModel, model);
+            assertEquals(invalidJson, Files.readString(filePath));
+        }
     }
 
     @Test
