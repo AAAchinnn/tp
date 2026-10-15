@@ -1,6 +1,7 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX;
@@ -11,6 +12,7 @@ import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.AMY;
+import static seedu.address.testutil.TypicalPersons.BENSON;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
@@ -27,6 +29,7 @@ import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AssociateCommand;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.DissociateCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
@@ -148,6 +151,47 @@ public class LogicManagerTest {
         assertCommandException("associate c/1 pr/1",
                 String.format(AssociateCommand.MESSAGE_DUPLICATE_ASSOCIATION, AMY.getName(), project.getName()));
         assertEquals(savedJson, Files.readString(addressBookPath));
+    }
+
+    @Test
+    public void execute_dissociateCommand_persistsRemovalAfterReload() throws Exception {
+        Project firstProject = new ProjectBuilder().withName("CS2103T Team Project").build();
+        Project secondProject = new ProjectBuilder().withName("Orbital").build();
+        model.addPerson(AMY);
+        model.addPerson(BENSON);
+        model.addProject(firstProject);
+        model.addProject(secondProject);
+        logic.execute("associate c/1 pr/1");
+        logic.execute("associate c/1 pr/2");
+        logic.execute("associate c/2 pr/1");
+        ProjectMembership selectedMembership = new ProjectMembership(AMY.getPersonId(), firstProject.getProjectId());
+        ProjectMembership sameContactMembership =
+                new ProjectMembership(AMY.getPersonId(), secondProject.getProjectId());
+        ProjectMembership sameProjectMembership =
+                new ProjectMembership(BENSON.getPersonId(), firstProject.getProjectId());
+        Path filePath = temporaryFolder.resolve("addressBook.json");
+        ReadOnlyAddressBook beforeRemoval = new JsonAddressBookStorage(filePath).readAddressBook().orElseThrow();
+        assertEquals(List.of(selectedMembership, sameContactMembership, sameProjectMembership),
+                beforeRemoval.getProjectMembershipList());
+
+        CommandResult result = logic.execute("dissociate c/1 pr/1");
+
+        ReadOnlyAddressBook restored = new JsonAddressBookStorage(filePath).readAddressBook().orElseThrow();
+        Model restartedModel = new ModelManager(restored, new UserPrefs());
+        assertEquals(String.format(DissociateCommand.MESSAGE_SUCCESS, AMY.getName(), firstProject.getName()),
+                result.getFeedbackToUser());
+        assertFalse(restartedModel.hasProjectMembership(selectedMembership));
+        assertEquals(List.of(sameContactMembership, sameProjectMembership),
+                restartedModel.getAddressBook().getProjectMembershipList());
+        assertEquals(List.of(AMY, BENSON), restartedModel.getAddressBook().getPersonList());
+        assertEquals(List.of(AMY.getPersonId(), BENSON.getPersonId()),
+                restartedModel.getAddressBook().getPersonList().stream().map(Person::getPersonId).toList());
+        assertEquals(List.of(firstProject, secondProject), restartedModel.getProjectList());
+        assertEquals(List.of(firstProject.getProjectId(), secondProject.getProjectId()),
+                restartedModel.getProjectList().stream().map(Project::getProjectId).toList());
+        assertEquals(List.of(BENSON), restartedModel.getProjectMembers(firstProject));
+        assertEquals(List.of(AMY), restartedModel.getProjectMembers(secondProject));
+        assertEquals(model, restartedModel);
     }
 
     @Test
