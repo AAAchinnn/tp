@@ -10,8 +10,7 @@
 
 ![Ui](images/Ui.png)
 
-**UniTeam is a desktop application for managing your contact details.** While it has a GUI, most of the user 
-interactions happen using a CLI (Command Line Interface).
+UniTeam is a lightweight, local address book designed for university students who frequently collaborate on projects across different modules. It helps users store contact details, organise contacts by project, and quickly view everyone involved in a project. UniTeam provides a dedicated place to manage academic contacts separate from personal phone contacts through typed commands.
 
 * If you are interested in using UniTeam, head over to the [_Quick Start_ section of the **User Guide**](UserGuide.
   html#quick-start).
