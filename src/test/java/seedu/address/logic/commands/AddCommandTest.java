@@ -193,6 +193,10 @@ public class AddCommandTest {
 
         @Override
         public void removeProjectMembership(ProjectMembership membership) {
+            thow new AssertionError("This method should not be called.");
+        }
+      
+        public Predicate<? super Person> getFilteredPersonListPredicate() {
             throw new AssertionError("This method should not be called.");
         }
     }

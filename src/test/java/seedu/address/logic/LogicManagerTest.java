@@ -45,7 +45,6 @@ import seedu.address.model.project.Project;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
-import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.ProjectBuilder;
 
 public class LogicManagerTest {
@@ -353,9 +352,12 @@ public class LogicManagerTest {
         // Triggers the saveAddressBook method by executing an add command
         String addCommand = AddCommand.COMMAND_WORD + NAME_DESC_AMY + PHONE_DESC_AMY
                 + EMAIL_DESC_AMY + ADDRESS_DESC_AMY;
-        Person expectedPerson = new PersonBuilder(AMY).withTags().build();
-        ModelManager expectedModel = new ModelManager();
-        expectedModel.addPerson(expectedPerson);
-        assertCommandFailure(addCommand, CommandException.class, expectedMessage, expectedModel);
+        Model expectedModel = new ModelManager(model.getAddressBook(), model.getUserPrefs());
+        assertCommandFailure(
+                addCommand,
+                CommandException.class,
+                expectedMessage + "\nThe command was not applied. Fix the save problem and try again.",
+                expectedModel
+        );
     }
 }
