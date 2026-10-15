@@ -219,7 +219,7 @@ AddressBook data is saved automatically as a JSON file `[JAR file location]/data
 <box type="warning" seamless>
 
 **Caution:**
-If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. The invalid file remains on disk until you run a command (AddressBook saves after every command). Still, we recommend backing up the file before editing it.<br>
+If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. Saving is disabled for that session to preserve the original file. Successful commands display a warning, and changes made in that session are lost when the application closes. Close the application, back up the original file, then repair it or restore a valid backup and restart to resume saving. We recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause the AddressBook to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
 

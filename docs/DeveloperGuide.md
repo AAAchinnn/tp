@@ -759,6 +759,14 @@ Projects and memberships are not serialized in this iteration, so these associat
 
 1. Dealing with missing/corrupted data files
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+   1. Use a disposable copy of the app and data file. Close the app and remove a closing brace from `data/addressbook.json`. Record the resulting file contents.
+   1. Restart the app and execute `list`, `listprojects`, `help`, a valid `add` command, and `exit`.<br>
+      Expected: The app starts with an empty address book. Each successful command warns that saving is disabled and session changes will be lost. Help and exit still work. The original file contents remain unchanged.
+   1. Restart again without repairing the file and execute `list`.<br>
+      Expected: Saving remains disabled and the original file contents remain unchanged.
+   1. Close the app, restore a valid backup, restart, add a contact, and restart again.<br>
+      Expected: The restored data and new contact load normally; saving is enabled.
+   1. Close the app and move the disposable data file elsewhere, then restart and execute `list`.<br>
+      Expected: Sample contacts are loaded and saved normally; no saving-disabled warning appears.
 
 1. _{ more test cases … }_

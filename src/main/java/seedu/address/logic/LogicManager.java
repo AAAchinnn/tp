@@ -49,6 +49,15 @@ public class LogicManager implements Logic {
         Command command = addressBookParser.parseCommand(commandText);
         commandResult = command.execute(model);
 
+        if (storage.isAddressBookSavingBlocked()) {
+            return new CommandResult(
+                    commandResult.getFeedbackToUser()
+                            + "\nSaving is disabled because the data file could not be loaded."
+                            + " Changes in this session will be lost.",
+                    commandResult.isShowHelp(),
+                    commandResult.isExit());
+        }
+
         try {
             storage.saveAddressBook(model.getAddressBook());
         } catch (AccessDeniedException e) {
