@@ -692,7 +692,95 @@ testers are expected to do more *exploratory* testing.
       Expected: The already-associated error identifies the same contact and project, confirming that membership
       refers to the selected contact's ID rather than its temporary search-result index.
 
-Projects and memberships are not serialized in this iteration, so these associations do not survive a restart.
+Projects and memberships are saved with contacts after successful commands and restored when the app restarts.
+
+### Dissociating a contact from a project
+
+1. Successful removal while preserving other data
+
+   1. Prerequisites: Launch a disposable copy of the app in an empty folder with no existing data file. Execute
+      `list` and note the first two contacts' names and details. There must be at least two contacts. Execute
+      `addproject n/Zeta dissociation test d/2026-11-13` followed by
+      `addproject n/Alpha dissociation test d/2026-11-13`. Open the Projects tab and confirm that Zeta is numbered 1
+      and Alpha is numbered 2, following insertion order. Use these numbers for `pr/`, not the UUIDs beside `ID:`.
+
+   1. Execute `associate c/1 pr/1`, `associate c/1 pr/2`, and `associate c/2 pr/1`. Run
+      `listmembers pr/Zeta dissociation test` and `listmembers pr/Alpha dissociation test`.<br>
+      Expected: Zeta contains the first two contacts, and Alpha contains only the first contact.
+
+   1. With the Contacts tab selected, execute `dissociate c/1 pr/1`.<br>
+      Expected: The success message names the first contact and `Zeta dissociation test`.
+
+   1. Run both `listmembers` commands again, inspect the Contacts tab, and run `listprojects`.<br>
+      Expected: Zeta contains only the second contact, and Alpha still contains the first contact. Both contacts
+      retain their details, and both projects retain their details, IDs, and displayed order.
+
+1. Unsuccessful dissociation attempts
+
+   1. Prerequisites: Keep the preceding session. The first contact belongs only to Alpha, and the second belongs
+      only to Zeta. Both contacts are displayed and there are exactly two projects.
+
+   1. Test cases: `dissociate`, `dissociate c/1`, `dissociate pr/1`, `dissociate c/ pr/1`,
+      `dissociate c/0 pr/1`, `dissociate c/1 pr/abc`, `dissociate c/1 proj/1`, and
+      `dissociate c/1 pr/1 x/3`.<br>
+      Expected: Each command shows the `dissociate` usage message and removes no membership.
+
+   1. Test cases: `dissociate c/1 c/2 pr/1` and `dissociate c/2 pr/1 pr/2`.<br>
+      Expected: The duplicate-field diagnostic identifies `c/` and `pr/`, respectively.
+
+   1. Test case: `dissociate c/10000 pr/1`.<br>
+      Expected: An invalid contact-index error occurs.
+
+   1. Test case: `dissociate c/1 pr/3`.<br>
+      Expected: An invalid project-index error occurs.
+
+   1. Test case: `dissociate c/1 pr/1`.<br>
+      Expected: A not-associated error names the first contact and `Zeta dissociation test`.
+
+   1. After each rejected command, run both `listmembers` commands and inspect the contact and project lists.<br>
+      Expected: Zeta still contains only the second contact, Alpha still contains only the first contact, and all
+      contact and project details remain unchanged.
+
+1. Filtered contact indices and removal of a project's last member
+
+   1. Keep the preceding session and use `find` with a name keyword that matches only the second contact from the
+      original list. Confirm that this contact is now numbered 1 in the Contacts tab.
+
+   1. Switch to the Projects tab and execute `dissociate pr/1 c/1`.<br>
+      Expected: The success message names the search-result contact and `Zeta dissociation test`. The reversed
+      prefix order works, the contact search remains active, and project indices remain unchanged.
+
+   1. Run `listmembers pr/Zeta dissociation test`.<br>
+      Expected: UniTeam reports no contacts associated with Zeta. The project remains in the Projects tab.
+
+   1. Test case: `dissociate c/2 pr/2`.<br>
+      Expected: An invalid contact-index error occurs because only one contact is displayed, even though the full
+      contact list contains at least two contacts. `listmembers pr/Alpha dissociation test` still shows the first
+      contact from the original list.
+
+   1. Execute `list`.<br>
+      Expected: Both original contacts remain, with their original details.
+
+1. Saving and restarting, including an empty membership list
+
+   1. Keep the preceding session. Inspect `data/addressbook.json` and record the contact and project IDs. Zeta has
+      no members, and Alpha contains only the first contact.
+
+   1. Close and restart the app from the same folder. Execute `list`, `listprojects`, and both `listmembers`
+      commands.<br>
+      Expected: All contacts and projects retain their details and IDs. Zeta still has no members, Alpha still
+      contains the first contact, and both projects retain their displayed order.
+
+   1. Execute `dissociate c/1 pr/1` and `dissociate c/2 pr/1`.<br>
+      Expected: Both produce not-associated errors naming the selected entities; the removed memberships have not
+      reappeared after restarting.
+
+   1. Execute `dissociate c/1 pr/2`, then `listmembers pr/Alpha dissociation test`.<br>
+      Expected: Removal succeeds, and Alpha has no members. No memberships remain in the app.
+
+   1. Close and restart again, then inspect the contact and project lists, run both `listmembers` commands, and
+      compare the saved IDs with the recorded values.<br>
+      Expected: Both projects still have no members, and all contacts and projects retain their details and IDs.
 
 ### Listing contacts in a project
 
