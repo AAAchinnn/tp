@@ -131,6 +131,8 @@ public interface Model {
      * The membership must exist in the address book.
      */
     void removeProjectMembership(ProjectMembership membership);
+
+    /**
      * Returns the current contact filter, or null if no filter is set.
      */
     Predicate<? super Person> getFilteredPersonListPredicate();
