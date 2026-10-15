@@ -13,7 +13,7 @@
 
 ## **Acknowledgements**
 
-* _{List the sources of reused or adapted ideas, code, documentation, and third-party libraries here, with links to the originals.}_
+This project is based on [AddressBook-Level3](https://github.com/se-edu/addressbook-level3), created by the [SE-EDU initiative](https://se-education.org).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -163,8 +163,7 @@ diagnostic. The parser checks positive-integer syntax; the command checks the in
 The Contacts tab displays `Model#getFilteredPersonList()`, while the Projects tab displays `Model#getProjectList()`
 through `Logic#getProjectList()` and `ProjectListPanel`. The project list is neither sorted nor filtered by the UI,
 and project cards are numbered from 1 in list order. `pr/PROJECT_INDEX` uses that number, not the UUID shown beside
-`ID:` on the card. Switching tabs does not change the lists or reset the contact filter. Projects and memberships
-remain session-only until their persistence is implemented.
+`ID:` on the card. Switching tabs does not change the lists or reset the contact filter.
 
 
 <box type="info" seamless>
@@ -377,10 +376,6 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *`  | university student | view all projects | quickly find the project I am working on |
 | `* *`    | user                                       | hide private contact details | minimize chance of someone else seeing them by accident                |
 | `*`      | user with many persons in the address book | sort persons by name         | locate a person easily                                                 |
-
-The requirement to retain projects and their associations between sessions is not implemented in this iteration.
-Projects and memberships exist only for the active application session; only contacts are reconstructed from
-`addressbook.json` after a restart.
 
 ### Use cases
 
@@ -642,8 +637,7 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Use a disposable copy of the app in a fresh session with at least two contacts. Execute `list`
       and inspect the Contacts tab to note the first two contacts. Execute
       `addproject n/Association test project d/2026-11-13`, then open the Projects tab and confirm that the project
-      is numbered 1. Use this number for `pr/`, not the UUID beside `ID:`. Projects are not loaded across sessions
-      in this iteration.
+      is numbered 1. Use this number for `pr/`, not the UUID beside `ID:`.
 
    1. With the Contacts tab selected, execute `associate c/2 pr/1`.<br>
       Expected: The status message names the second displayed contact and `Association test project`.

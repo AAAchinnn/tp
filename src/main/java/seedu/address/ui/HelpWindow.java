@@ -45,22 +45,9 @@ public class HelpWindow extends UiPart<Stage> {
     }
 
     /**
-     * Shows the help window.
-     * @throws IllegalStateException
-     *     <ul>
-     *         <li>
-     *             if this method is called on a thread other than the JavaFX Application Thread.
-     *         </li>
-     *         <li>
-     *             if this method is called during animation or layout processing.
-     *         </li>
-     *         <li>
-     *             if this method is called on the primary stage.
-     *         </li>
-     *         <li>
-     *             if the stage is already showing.
-     *         </li>
-     *     </ul>
+     * Shows the help window and centres it on the screen.
+     *
+     * @throws IllegalStateException if called outside the JavaFX Application Thread.
      */
     public void show() {
         logger.fine("Showing help page about the application.");

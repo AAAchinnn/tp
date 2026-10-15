@@ -21,8 +21,10 @@ import seedu.address.model.project.UniqueProjectList;
 import seedu.address.model.project.exceptions.ProjectNotFoundException;
 
 /**
- * Wraps all data at the address-book level.
- * Duplicates are not allowed (by .isSamePerson and .isSameProject comparison).
+ * Stores UniTeam's contacts, projects and project memberships.
+ * Contacts have unique identifiers and names.
+ * Projects have unique identifiers and normalised names.
+ * Memberships are unique contact-project pairs that reference existing entities.
  */
 public class AddressBook implements ReadOnlyAddressBook {
 

@@ -6,7 +6,7 @@
 
 # UniTeam User Guide
 
-UniTeam is a **desktop application for managing academic contacts and projects separate from contactal phone contacts 
+UniTeam is a **desktop application for managing academic contacts and projects separate from personal phone contacts 
 and organised by involvement in projects, optimised for use through a Command Line Interface (CLI)** 
 while retaining the benefits of a Graphical User Interface (GUI). If you type quickly, UniTeam can help you manage 
 contacts faster than traditional GUI applications.
@@ -34,7 +34,8 @@ contacts faster than traditional GUI applications.
 
    * `list` : Lists all contacts.
 
-   * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01` : Adds a contact named `John Doe` to the Address Book.
+   * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01` : Adds a contact named `John 
+   Doe` to UniTeam.
 
    * `delete 3` : Deletes the 3rd contact shown in the current list.
 
@@ -240,8 +241,6 @@ To intentionally start fresh, close the application and move the original data f
 Furthermore, certain edits can cause UniTeam to behave in unexpected ways (e.g., if a value entered is outside of the 
 acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
-
-### Archiving data files `[coming in v2.0]`
 
 _Details coming soon ..._
 
