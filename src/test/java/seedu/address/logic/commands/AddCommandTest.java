@@ -190,6 +190,11 @@ public class AddCommandTest {
         public void addProjectMembership(ProjectMembership membership) {
             throw new AssertionError("This method should not be called.");
         }
+
+        @Override
+        public void removeProjectMembership(ProjectMembership membership) {
+            throw new AssertionError("This method should not be called.");
+        }
     }
 
     /**

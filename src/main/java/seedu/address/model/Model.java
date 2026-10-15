@@ -125,4 +125,10 @@ public interface Model {
      * The referenced person and project must exist, and the membership must not already exist.
      */
     void addProjectMembership(ProjectMembership membership);
+
+    /**
+     * Removes the given project membership from the address book.
+     * The membership must exist in the address book.
+     */
+    void removeProjectMembership(ProjectMembership membership);
 }
