@@ -78,7 +78,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveFileName = 'addressbook.jar'
+    archiveFileName = 'uniteam.jar'
 }
 
 defaultTasks 'clean', 'test'

@@ -10,7 +10,7 @@ import seedu.address.model.Model;
 import seedu.address.model.project.Description;
 import seedu.address.model.project.Project;
 
-/** Lists all projects in the address book. */
+/** Lists all projects in UniTeam. */
 public class ListProjectsCommand extends Command {
 
     public static final String COMMAND_WORD = "listprojects";

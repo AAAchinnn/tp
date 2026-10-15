@@ -34,7 +34,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
-     * Creates an AddressBook using the Persons and Projects in the {@code toBeCopied}
+     * Creates an AddressBook containing the contacts, projects and memberships from {@code toBeCopied}.
      */
     public AddressBook(ReadOnlyAddressBook toBeCopied) {
         this();
