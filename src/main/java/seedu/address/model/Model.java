@@ -125,4 +125,9 @@ public interface Model {
      * The referenced person and project must exist, and the membership must not already exist.
      */
     void addProjectMembership(ProjectMembership membership);
+
+    /**
+     * Returns the current contact filter, or null if no filter is set.
+     */
+    Predicate<? super Person> getFilteredPersonListPredicate();
 }
