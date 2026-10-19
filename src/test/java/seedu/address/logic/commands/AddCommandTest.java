@@ -4,8 +4,11 @@ import static java.util.Objects.requireNonNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
+import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.BOB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +23,62 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
+import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.ReadOnlyUserPrefs;
+import seedu.address.model.UserPrefs;
 import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.PersonId;
 import seedu.address.model.project.Project;
 import seedu.address.model.project.ProjectName;
 import seedu.address.testutil.PersonBuilder;
 
 public class AddCommandTest {
+
+    @Test
+    public void execute_sameNameWithDifferentDetails_success() {
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(ALICE);
+        Model model = new ModelManager(addressBook, new UserPrefs());
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withPhone("91234567").build();
+        AddressBook expectedAddressBook = new AddressBook(addressBook);
+        expectedAddressBook.addPerson(otherAlice);
+        Model expectedModel = new ModelManager(expectedAddressBook, new UserPrefs());
+
+        assertCommandSuccess(new AddCommand(otherAlice), model,
+                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(otherAlice)), expectedModel);
+        assertEquals(List.of(ALICE.getPersonId(), otherAlice.getPersonId()),
+                model.getAddressBook().getPersonList().stream().map(Person::getPersonId).toList());
+    }
+
+    @Test
+    public void execute_matchingDetailsWithDifferentId_failure() {
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(ALICE);
+        Model model = new ModelManager(addressBook, new UserPrefs());
+        Person duplicate = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
+
+        assertCommandFailure(new AddCommand(duplicate), model, AddCommand.MESSAGE_DUPLICATE_PERSON);
+        assertEquals(List.of(ALICE.getPersonId()),
+                model.getAddressBook().getPersonList().stream().map(Person::getPersonId).toList());
+    }
+
+    @Test
+    public void execute_duplicateHiddenByFilter_failure() {
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(ALICE);
+        addressBook.addPerson(BOB);
+        Model model = new ModelManager(addressBook, new UserPrefs());
+        model.updateFilteredPersonList(person -> person.getPersonId().equals(BOB.getPersonId()));
+        assertEquals(List.of(BOB), model.getFilteredPersonList());
+        Person duplicate = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
+
+        assertCommandFailure(new AddCommand(duplicate), model, AddCommand.MESSAGE_DUPLICATE_PERSON);
+        assertEquals(List.of(ALICE.getPersonId(), BOB.getPersonId()),
+                model.getAddressBook().getPersonList().stream().map(Person::getPersonId).toList());
+    }
 
     @Test
     public void constructor_nullPerson_throwsNullPointerException() {

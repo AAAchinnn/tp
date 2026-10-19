@@ -38,11 +38,80 @@ public class UniquePersonListTest {
     }
 
     @Test
-    public void contains_personWithSameIdentityFieldsInList_returnsTrue() {
+    public void contains_sameNameWithDifferentDetails_returnsFalse() {
         uniquePersonList.add(ALICE);
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
                 .build();
-        assertTrue(uniquePersonList.contains(editedAlice));
+        assertFalse(uniquePersonList.contains(editedAlice));
+    }
+
+    @Test
+    public void contains_matchingDetailsWithDifferentId_returnsTrue() {
+        uniquePersonList.add(ALICE);
+        Person duplicate = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
+
+        assertTrue(uniquePersonList.contains(duplicate));
+    }
+
+    @Test
+    public void add_sameNameWithDifferentDetails_success() {
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+        uniquePersonList.add(ALICE);
+
+        uniquePersonList.add(otherAlice);
+
+        assertEquals(List.of(ALICE, otherAlice), uniquePersonList.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void add_matchingDetailsWithDifferentId_throwsDuplicatePersonException() {
+        Person duplicate = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
+        uniquePersonList.add(ALICE);
+
+        assertThrows(DuplicatePersonException.class, () -> uniquePersonList.add(duplicate));
+        assertEquals(List.of(ALICE), uniquePersonList.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void setPerson_sameNameWithDifferentDetails_success() {
+        uniquePersonList.setPersons(List.of(ALICE, BOB));
+        Person editedBob = new PersonBuilder(BOB).withName(ALICE.getName().fullName).build();
+
+        uniquePersonList.setPerson(BOB, editedBob);
+
+        assertEquals(List.of(ALICE, editedBob), uniquePersonList.asUnmodifiableObservableList());
+        assertEquals(BOB.getPersonId(), uniquePersonList.asUnmodifiableObservableList().get(1).getPersonId());
+    }
+
+    @Test
+    public void setPerson_sameNameBecomesExactDuplicate_throwsDuplicatePersonException() {
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+        uniquePersonList.setPersons(List.of(ALICE, otherAlice));
+        Person duplicate = new PersonBuilder(ALICE).withPersonId(otherAlice.getPersonId()).build();
+
+        assertThrows(DuplicatePersonException.class, () -> uniquePersonList.setPerson(otherAlice, duplicate));
+        assertEquals(List.of(ALICE, otherAlice), uniquePersonList.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void setPersons_sameNameWithDifferentDetails_success() {
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+
+        uniquePersonList.setPersons(List.of(ALICE, otherAlice));
+
+        assertEquals(List.of(ALICE, otherAlice), uniquePersonList.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void setPersons_matchingDetailsWithDifferentIds_throwsDuplicatePersonException() {
+        uniquePersonList.add(BOB);
+        Person duplicate = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
+
+        assertThrows(DuplicatePersonException.class, () -> uniquePersonList.setPersons(List.of(ALICE, duplicate)));
+        assertEquals(List.of(BOB), uniquePersonList.asUnmodifiableObservableList());
     }
 
     @Test
