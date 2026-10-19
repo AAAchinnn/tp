@@ -87,6 +87,10 @@ Adds a contact to UniTeam.
 
 Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... `
 
+Contacts can share a name. A contact is rejected as a duplicate only when its name, phone number, email, address,
+and tags all match an existing contact, including contacts hidden by the current filter. Tag order does not matter.
+A difference in any of these fields allows a separate contact, even if only the address or tags differ.
+
 <box type="tip" seamless>
 
 **Tip:** A contact can have any number of tags, including zero.
@@ -95,6 +99,13 @@ Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... `
 Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy Crowe t/friend e/betsycrowe@example.com a/Newgate Prison p/1234567 t/criminal`
+
+For example, both of these commands succeed because the contacts have different phone numbers:
+
+* `add n/Alex Tan p/91234567 e/alex@example.com a/Block 1`
+* `add n/Alex Tan p/98765432 e/alex@example.com a/Block 1`
+
+Repeating either command is rejected with `This contact already exists in UniTeam.`
 
 ### Adding a project: `addproject`
 
@@ -129,6 +140,11 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]... `
 * Existing values will be updated to the input values.
 * When editing tags, all of the contact's existing tags are removed; adding tags is not cumulative.
 * To remove all of a contact's tags, enter `t/` without a tag after it.
+* A contact can be renamed to share another contact's name, provided their complete details differ.
+  An edit that makes all five fields match another contact is rejected with
+  `This contact already exists in UniTeam.`, including when the other contact is hidden by a filter.
+  The rejected edit leaves the contacts unchanged.
+* Providing an existing field value without changing the contact's details is allowed.
 
 Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st contact to be 
