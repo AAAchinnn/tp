@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_CONTACT;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,8 +21,10 @@ import seedu.address.model.project.Project;
 public class ListProjectsCommand extends Command {
 
     public static final String COMMAND_WORD = "listprojects";
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Lists all projects in UniTeam.\n"
-            + "Example: " + COMMAND_WORD;
+    public static final String MESSAGE_USAGE = COMMAND_WORD
+            + ": Lists all projects or the projects associated with a displayed contact.\n"
+            + "Parameters: [" + PREFIX_CONTACT + "CONTACT_INDEX] (must be a positive integer)\n"
+            + "Examples: " + COMMAND_WORD + " or " + COMMAND_WORD + " " + PREFIX_CONTACT + "2";
     public static final String MESSAGE_EMPTY = "There are no projects to list.";
     public static final String MESSAGE_SUCCESS = "Listed %1$d project(s):\n%2$s";
     public static final String MESSAGE_NO_PROJECTS = "No projects are associated with contact \"%1$s\".";

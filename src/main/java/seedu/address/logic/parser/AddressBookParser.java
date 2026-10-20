@@ -65,8 +65,7 @@ public class AddressBookParser {
             case FindCommand.COMMAND_WORD -> new FindCommandParser().parse(arguments);
             case ListCommand.COMMAND_WORD -> parseParameterFreeCommand(
                     arguments, ListCommand.MESSAGE_USAGE, new ListCommand());
-            case ListProjectsCommand.COMMAND_WORD -> parseParameterFreeCommand(
-                    arguments, ListProjectsCommand.MESSAGE_USAGE, new ListProjectsCommand());
+            case ListProjectsCommand.COMMAND_WORD -> new ListProjectsCommandParser().parse(arguments);
             case ListMembersCommand.COMMAND_WORD -> new ListMembersCommandParser().parse(arguments);
             case ExitCommand.COMMAND_WORD -> parseParameterFreeCommand(
                     arguments, ExitCommand.MESSAGE_USAGE, new ExitCommand());
