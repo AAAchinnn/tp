@@ -32,7 +32,7 @@ public class EditProjectCommandParser implements Parser<EditProjectCommand> {
             throw new ParseException(String.format(
                     MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE));
         }
-        
+
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_PROJECT, PREFIX_DEADLINE, PREFIX_DESCRIPTION);
 
