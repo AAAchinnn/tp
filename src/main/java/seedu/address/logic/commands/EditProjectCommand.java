@@ -4,13 +4,16 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DEADLINE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DESCRIPTION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PROJECT;
+import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.CollectionUtil;
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.project.Deadline;
@@ -33,7 +36,7 @@ public class EditProjectCommand extends Command {
             + "[" + PREFIX_DEADLINE + "DEADLINE] "
             + "[" + PREFIX_DESCRIPTION + "DESCRIPTION] "
             + "Example: " + COMMAND_WORD + " 1 "
-            + PREFIX_PROJECT + "New Project Name"
+            + PREFIX_PROJECT + "New Project Name "
             + PREFIX_DEADLINE + "2027-01-01";
 
     public static final String MESSAGE_EDIT_PROJECT_SUCCESS = "Edited project: %1$s";
@@ -57,14 +60,34 @@ public class EditProjectCommand extends Command {
 
     @Override
     public CommandResult execute(Model model) throws CommandException {
-        return null;
+        requireNonNull(model);
+        List<Project> lastShownList = model.getProjectList();
+
+        if (index.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX);
+        }
+
+        Project projectToEdit = lastShownList.get(index.getZeroBased());
+        Project editedProject = createEditedProject(projectToEdit, editProjectDescriptor);
+
+        boolean hasDuplicateName = model.findProject(editedProject.getName())
+                .filter(project -> !project.isSameProject(projectToEdit))
+                .isPresent();
+
+        if (hasDuplicateName) {
+            throw new CommandException(MESSAGE_DUPLICATE_PROJECT);
+        }
+
+        model.setProject(projectToEdit, editedProject);
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        return new CommandResult(String.format(MESSAGE_EDIT_PROJECT_SUCCESS, Messages.format(editedProject)));
     }
 
     /**
      * Creates and returns a {@code Project} with the details of {@code projectToEdit}
      * edited with {@code editProjectDescriptor}.
      */
-    private static Project createEditedPerson(Project projectToEdit, EditProjectDescriptor editProjectDescriptor) {
+    private static Project createEditedProject(Project projectToEdit, EditProjectDescriptor editProjectDescriptor) {
         assert projectToEdit != null;
 
         ProjectName updatedName = editProjectDescriptor.getName().orElse(projectToEdit.getName());
