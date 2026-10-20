@@ -136,6 +136,12 @@ public class ModelManager implements Model {
     }
 
     @Override
+    public List<Project> getPersonProjects(Person person) {
+        requireNonNull(person);
+        return addressBook.getPersonProjects(person);
+    }
+
+    @Override
     public boolean hasProjectMembership(ProjectMembership membership) {
         requireNonNull(membership);
         return addressBook.hasProjectMembership(membership);
