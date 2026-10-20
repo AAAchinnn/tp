@@ -1,7 +1,8 @@
 package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -91,7 +92,7 @@ public class EditProjectCommandTest {
 
         assertEquals(List.of(expectedProject, secondProject), model.getProjectList());
         assertEquals(firstProject.getProjectId(),
-            model.getProjectList().get(0).getProjectId());
+            model.getProjectList().getFirst().getProjectId());
         assertEquals(
             "Edited project: Updated Project; Deadline: 2027-01-01; "
                 + "Description: Updated description",
@@ -221,7 +222,7 @@ public class EditProjectCommandTest {
 
         new EditProjectCommand(FIRST_PROJECT, descriptor).execute(model);
 
-        Project editedProject = model.getProjectList().get(0);
+        Project editedProject = model.getProjectList().getFirst();
         assertEquals(firstProject.getProjectId(), editedProject.getProjectId());
         assertEquals(List.of(membership),
             model.getAddressBook().getProjectMembershipList());
@@ -246,7 +247,7 @@ public class EditProjectCommandTest {
 
         assertEquals(List.of(shownContact), model.getFilteredPersonList());
         assertEquals(new ProjectName("Updated Project"),
-            model.getProjectList().get(0).getName());
+            model.getProjectList().getFirst().getName());
     }
 
     @Test
@@ -268,11 +269,35 @@ public class EditProjectCommandTest {
             expectedModel);
     }
 
+    @Test
+    public void equals() {
+        EditProjectDescriptor descriptor = new EditProjectDescriptor();
+        descriptor.setName(new ProjectName("Updated Project"));
+
+        EditProjectCommand command =
+            new EditProjectCommand(FIRST_PROJECT, descriptor);
+        EditProjectCommand sameCommand = new EditProjectCommand(
+            FIRST_PROJECT, new EditProjectDescriptor(descriptor));
+
+        EditProjectDescriptor differentDescriptor = new EditProjectDescriptor();
+        differentDescriptor.setName(new ProjectName("Another Name"));
+
+        assertTrue(command.equals(command));
+        assertTrue(command.equals(sameCommand));
+        assertTrue(sameCommand.equals(command));
+
+        assertFalse(command.equals(null));
+        assertFalse(command.equals(1));
+        assertFalse(command.equals(
+            new EditProjectCommand(SECOND_PROJECT, descriptor)));
+        assertFalse(command.equals(
+            new EditProjectCommand(FIRST_PROJECT, differentDescriptor)));
+    }
+
     /**
      * Verifies the feedback and complete model state after a successful edit.
      */
-    private void assertEditSuccess(Index index, EditProjectDescriptor descriptor,
-                                   Project expectedProject) {
+    private void assertEditSuccess(Index index, EditProjectDescriptor descriptor, Project expectedProject) {
         Project target = model.getProjectList().get(index.getZeroBased());
         Model expectedModel = new ModelManager(
             new AddressBook(model.getAddressBook()), new UserPrefs());
@@ -290,28 +315,5 @@ public class EditProjectCommandTest {
 
         assertEquals(target.getProjectId(),
             model.getProjectList().get(index.getZeroBased()).getProjectId());
-    }
-
-    @Test
-    public void equals() {
-        EditProjectDescriptor descriptor = new EditProjectDescriptor();
-        descriptor.setName(new ProjectName("Updated Project"));
-
-        EditProjectCommand command =
-            new EditProjectCommand(FIRST_PROJECT, descriptor);
-        EditProjectCommand sameCommand = new EditProjectCommand(
-            FIRST_PROJECT, new EditProjectDescriptor(descriptor));
-
-        EditProjectDescriptor differentDescriptor = new EditProjectDescriptor();
-        differentDescriptor.setName(new ProjectName("Another Name"));
-
-        assertEquals(command, command);
-        assertEquals(command, sameCommand);
-        assertEquals(sameCommand, command);
-
-        assertNotEquals(null, command);
-        assertNotEquals(1, command);
-        assertNotEquals(command, new EditProjectCommand(SECOND_PROJECT, descriptor));
-        assertNotEquals(command, new EditProjectCommand(FIRST_PROJECT, differentDescriptor));
     }
 }

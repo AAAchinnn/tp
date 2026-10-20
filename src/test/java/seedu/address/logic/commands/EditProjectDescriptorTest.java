@@ -27,11 +27,11 @@ public class EditProjectDescriptorTest {
 
         EditProjectDescriptor copy = new EditProjectDescriptor(descriptor);
 
-        assertEquals(descriptor, descriptor);
+        assertTrue(descriptor.equals(descriptor));
         assertEquals(descriptor, copy);
         assertEquals(copy, descriptor);
-        assertNotEquals(null, descriptor);
-        assertNotEquals(1, descriptor);
+        assertFalse(descriptor.equals(null));
+        assertFalse(descriptor.equals(1));
 
         EditProjectDescriptor differentName = new EditProjectDescriptor(descriptor);
         differentName.setName(new ProjectName("Another Name"));
