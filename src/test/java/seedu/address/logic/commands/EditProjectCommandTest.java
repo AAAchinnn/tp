@@ -1,6 +1,8 @@
 package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -286,5 +288,30 @@ public class EditProjectCommandTest {
 
         assertEquals(target.getProjectId(),
                 model.getProjectList().get(index.getZeroBased()).getProjectId());
+    }
+
+    @Test
+    public void equals() {
+        EditProjectDescriptor descriptor = new EditProjectDescriptor();
+        descriptor.setName(new ProjectName("Updated Project"));
+
+        EditProjectCommand command =
+            new EditProjectCommand(FIRST_PROJECT, descriptor);
+        EditProjectCommand sameCommand = new EditProjectCommand(
+            FIRST_PROJECT, new EditProjectDescriptor(descriptor));
+
+        EditProjectDescriptor differentDescriptor = new EditProjectDescriptor();
+        differentDescriptor.setName(new ProjectName("Another Name"));
+
+        assertTrue(command.equals(command));
+        assertTrue(command.equals(sameCommand));
+        assertTrue(sameCommand.equals(command));
+
+        assertFalse(command.equals(null));
+        assertFalse(command.equals(1));
+        assertFalse(command.equals(
+            new EditProjectCommand(SECOND_PROJECT, descriptor)));
+        assertFalse(command.equals(
+            new EditProjectCommand(FIRST_PROJECT, differentDescriptor)));
     }
 }
