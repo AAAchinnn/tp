@@ -76,4 +76,8 @@ shadowJar {
     archiveFileName = 'uniteam.jar'
 }
 
+run {
+    enableAssertions = true
+}
+
 defaultTasks 'clean', 'test'
