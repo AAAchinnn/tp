@@ -1,8 +1,7 @@
 package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -46,15 +45,15 @@ public class EditProjectCommandTest {
     public void setUp() {
         model = new ModelManager();
         firstProject = new ProjectBuilder()
-                .withName("CS2103T")
-                .withDeadline(LocalDate.of(2026, 11, 13))
-                .withDescription("Original description")
-                .build();
+            .withName("CS2103T")
+            .withDeadline(LocalDate.of(2026, 11, 13))
+            .withDescription("Original description")
+            .build();
         secondProject = new ProjectBuilder()
-                .withName("Orbital Team")
-                .withDeadline(LocalDate.of(2027, 7, 1))
-                .withDescription("Another project")
-                .build();
+            .withName("Orbital Team")
+            .withDeadline(LocalDate.of(2027, 7, 1))
+            .withDescription("Another project")
+            .build();
 
         model.addProject(firstProject);
         model.addProject(secondProject);
@@ -83,20 +82,20 @@ public class EditProjectCommandTest {
         descriptor.setDescription(new Description("Updated description"));
 
         Project expectedProject = new ProjectBuilder(firstProject)
-                .withName("Updated Project")
-                .withDeadline(NEW_DEADLINE)
-                .withDescription("Updated description")
-                .build();
+            .withName("Updated Project")
+            .withDeadline(NEW_DEADLINE)
+            .withDescription("Updated description")
+            .build();
 
         CommandResult result = new EditProjectCommand(FIRST_PROJECT, descriptor).execute(model);
 
         assertEquals(List.of(expectedProject, secondProject), model.getProjectList());
         assertEquals(firstProject.getProjectId(),
-                model.getProjectList().get(0).getProjectId());
+            model.getProjectList().get(0).getProjectId());
         assertEquals(
-                "Edited project: Updated Project; Deadline: 2027-01-01; "
-                        + "Description: Updated description",
-                result.getFeedbackToUser());
+            "Edited project: Updated Project; Deadline: 2027-01-01; "
+                + "Description: Updated description",
+            result.getFeedbackToUser());
     }
 
     @Test
@@ -104,7 +103,7 @@ public class EditProjectCommandTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setName(new ProjectName("Updated Project"));
         Project expectedProject = new ProjectBuilder(firstProject)
-                .withName("Updated Project").build();
+            .withName("Updated Project").build();
 
         assertEditSuccess(FIRST_PROJECT, descriptor, expectedProject);
     }
@@ -114,7 +113,7 @@ public class EditProjectCommandTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setDeadline(new Deadline(NEW_DEADLINE));
         Project expectedProject = new ProjectBuilder(firstProject)
-                .withDeadline(NEW_DEADLINE).build();
+            .withDeadline(NEW_DEADLINE).build();
 
         assertEditSuccess(FIRST_PROJECT, descriptor, expectedProject);
     }
@@ -124,7 +123,7 @@ public class EditProjectCommandTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setDescription(new Description("Updated description"));
         Project expectedProject = new ProjectBuilder(firstProject)
-                .withDescription("Updated description").build();
+            .withDescription("Updated description").build();
 
         assertEditSuccess(FIRST_PROJECT, descriptor, expectedProject);
     }
@@ -134,15 +133,15 @@ public class EditProjectCommandTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setDescription(Description.EMPTY);
         Project expectedProject = new ProjectBuilder(firstProject)
-                .withDescription("").build();
+            .withDescription("").build();
 
         CommandResult result = new EditProjectCommand(FIRST_PROJECT, descriptor).execute(model);
 
         assertEquals(List.of(expectedProject, secondProject), model.getProjectList());
         assertEquals(
-                "Edited project: CS2103T; Deadline: 2026-11-13; "
-                        + "Description: No description provided",
-                result.getFeedbackToUser());
+            "Edited project: CS2103T; Deadline: 2026-11-13; "
+                + "Description: No description provided",
+            result.getFeedbackToUser());
     }
 
     @Test
@@ -150,7 +149,7 @@ public class EditProjectCommandTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setName(new ProjectName("Updated Orbital"));
         Project expectedProject = new ProjectBuilder(secondProject)
-                .withName("Updated Orbital").build();
+            .withName("Updated Orbital").build();
 
         assertEditSuccess(SECOND_PROJECT, descriptor, expectedProject);
     }
@@ -169,9 +168,9 @@ public class EditProjectCommandTest {
         descriptor.setName(secondProject.getName());
 
         assertCommandFailure(
-                new EditProjectCommand(FIRST_PROJECT, descriptor),
-                model,
-                EditProjectCommand.MESSAGE_DUPLICATE_PROJECT);
+            new EditProjectCommand(FIRST_PROJECT, descriptor),
+            model,
+            EditProjectCommand.MESSAGE_DUPLICATE_PROJECT);
     }
 
     @Test
@@ -180,9 +179,9 @@ public class EditProjectCommandTest {
         descriptor.setName(new ProjectName("  oRbItAl   tEaM  "));
 
         assertCommandFailure(
-                new EditProjectCommand(FIRST_PROJECT, descriptor),
-                model,
-                EditProjectCommand.MESSAGE_DUPLICATE_PROJECT);
+            new EditProjectCommand(FIRST_PROJECT, descriptor),
+            model,
+            EditProjectCommand.MESSAGE_DUPLICATE_PROJECT);
     }
 
     @Test
@@ -192,9 +191,9 @@ public class EditProjectCommandTest {
         descriptor.setName(new ProjectName("New Name"));
 
         assertCommandFailure(
-                new EditProjectCommand(invalidIndex, descriptor),
-                model,
-                Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX);
+            new EditProjectCommand(invalidIndex, descriptor),
+            model,
+            Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX);
     }
 
     @Test
@@ -204,9 +203,9 @@ public class EditProjectCommandTest {
         descriptor.setName(new ProjectName("New Name"));
 
         assertCommandFailure(
-                new EditProjectCommand(FIRST_PROJECT, descriptor),
-                model,
-                Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX);
+            new EditProjectCommand(FIRST_PROJECT, descriptor),
+            model,
+            Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX);
     }
 
     @Test
@@ -214,7 +213,7 @@ public class EditProjectCommandTest {
         Person contact = new PersonBuilder().build();
         model.addPerson(contact);
         ProjectMembership membership = new ProjectMembership(
-                contact.getPersonId(), firstProject.getProjectId());
+            contact.getPersonId(), firstProject.getProjectId());
         model.addProjectMembership(membership);
 
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
@@ -225,7 +224,7 @@ public class EditProjectCommandTest {
         Project editedProject = model.getProjectList().get(0);
         assertEquals(firstProject.getProjectId(), editedProject.getProjectId());
         assertEquals(List.of(membership),
-                model.getAddressBook().getProjectMembershipList());
+            model.getAddressBook().getProjectMembershipList());
         assertEquals(List.of(contact), model.getProjectMembers(editedProject));
         assertEquals(secondProject, model.getProjectList().get(1));
     }
@@ -237,7 +236,7 @@ public class EditProjectCommandTest {
         model.addPerson(shownContact);
         model.addPerson(hiddenContact);
         model.updateFilteredPersonList(person ->
-                person.getPersonId().equals(shownContact.getPersonId()));
+            person.getPersonId().equals(shownContact.getPersonId()));
         assertEquals(List.of(shownContact), model.getFilteredPersonList());
 
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
@@ -247,7 +246,7 @@ public class EditProjectCommandTest {
 
         assertEquals(List.of(shownContact), model.getFilteredPersonList());
         assertEquals(new ProjectName("Updated Project"),
-                model.getProjectList().get(0).getName());
+            model.getProjectList().get(0).getName());
     }
 
     @Test
@@ -258,15 +257,15 @@ public class EditProjectCommandTest {
         descriptor.setName(new ProjectName("Changed Afterwards"));
 
         Project expectedProject = new ProjectBuilder(firstProject)
-                .withName("Intended Name").build();
+            .withName("Intended Name").build();
         Model expectedModel = new ModelManager(
-                new AddressBook(model.getAddressBook()), new UserPrefs());
+            new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setProject(firstProject, expectedProject);
 
         assertCommandSuccess(command, model,
-                String.format(EditProjectCommand.MESSAGE_EDIT_PROJECT_SUCCESS,
-                        Messages.format(expectedProject)),
-                expectedModel);
+            String.format(EditProjectCommand.MESSAGE_EDIT_PROJECT_SUCCESS,
+                Messages.format(expectedProject)),
+            expectedModel);
     }
 
     /**
@@ -276,18 +275,21 @@ public class EditProjectCommandTest {
                                    Project expectedProject) {
         Project target = model.getProjectList().get(index.getZeroBased());
         Model expectedModel = new ModelManager(
-                new AddressBook(model.getAddressBook()), new UserPrefs());
+            new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setProject(target, expectedProject);
 
         assertCommandSuccess(
-                new EditProjectCommand(index, descriptor),
-                model,
-                String.format(EditProjectCommand.MESSAGE_EDIT_PROJECT_SUCCESS,
-                        Messages.format(expectedProject)),
-                expectedModel);
+            new EditProjectCommand(index, descriptor),
+            model,
+            String.format(
+                EditProjectCommand.MESSAGE_EDIT_PROJECT_SUCCESS,
+                Messages.format(expectedProject)
+            ),
+            expectedModel
+        );
 
         assertEquals(target.getProjectId(),
-                model.getProjectList().get(index.getZeroBased()).getProjectId());
+            model.getProjectList().get(index.getZeroBased()).getProjectId());
     }
 
     @Test
@@ -303,15 +305,13 @@ public class EditProjectCommandTest {
         EditProjectDescriptor differentDescriptor = new EditProjectDescriptor();
         differentDescriptor.setName(new ProjectName("Another Name"));
 
-        assertTrue(command.equals(command));
-        assertTrue(command.equals(sameCommand));
-        assertTrue(sameCommand.equals(command));
+        assertEquals(command, command);
+        assertEquals(command, sameCommand);
+        assertEquals(sameCommand, command);
 
-        assertFalse(command.equals(null));
-        assertFalse(command.equals(1));
-        assertFalse(command.equals(
-            new EditProjectCommand(SECOND_PROJECT, descriptor)));
-        assertFalse(command.equals(
-            new EditProjectCommand(FIRST_PROJECT, differentDescriptor)));
+        assertNotEquals(null, command);
+        assertNotEquals(1, command);
+        assertNotEquals(command, new EditProjectCommand(SECOND_PROJECT, descriptor));
+        assertNotEquals(command, new EditProjectCommand(FIRST_PROJECT, differentDescriptor));
     }
 }

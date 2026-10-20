@@ -1,5 +1,6 @@
 package seedu.address.logic.parser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DEADLINE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DESCRIPTION;
@@ -40,9 +41,9 @@ public class EditProjectCommandParserTest {
         descriptor.setDescription(new Description("Build a contact manager"));
 
         assertParsedCommand(
-                " 1 pr/CS2103T Team Project d/2026-11-13"
-                        + " desc/Build a contact manager",
-                descriptor);
+            " 1 pr/CS2103T Team Project d/2026-11-13"
+                + " desc/Build a contact manager",
+            descriptor);
     }
 
     @Test
@@ -53,9 +54,9 @@ public class EditProjectCommandParserTest {
         descriptor.setDescription(new Description("Build a contact manager"));
 
         assertParsedCommand(
-                " \t1 \t desc/  Build a contact manager  "
-                        + " d/ 2026-11-13  pr/  CS2103T   Team Project  ",
-                descriptor);
+            " \t1 \t desc/  Build a contact manager  "
+                + " d/ 2026-11-13  pr/  CS2103T   Team Project  ",
+            descriptor);
     }
 
     @Test
@@ -97,13 +98,13 @@ public class EditProjectCommandParserTest {
         descriptor.setName(new ProjectName("Updated Project"));
 
         assertParseSuccess(parser, " 2 pr/Updated Project",
-                new EditProjectCommand(Index.fromOneBased(2), descriptor));
+            new EditProjectCommand(Index.fromOneBased(2), descriptor));
     }
 
     @Test
     public void parse_missingOrInvalidIndex_failure() {
         String expectedMessage = String.format(
-                MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE);
+            MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE);
         String[] invalidInputs = {
             "",
             " pr/Updated Project",
@@ -129,17 +130,17 @@ public class EditProjectCommandParserTest {
     @Test
     public void parse_duplicatePrefixes_failure() {
         assertParseFailure(parser,
-                " 1 pr/First pr/Second",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PROJECT));
+            " 1 pr/First pr/Second",
+            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PROJECT));
         assertParseFailure(parser,
-                " 1 pr/First pr/First",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PROJECT));
+            " 1 pr/First pr/First",
+            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PROJECT));
         assertParseFailure(parser,
-                " 1 d/2027-01-01 d/2027-01-02",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_DEADLINE));
+            " 1 d/2027-01-01 d/2027-01-02",
+            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_DEADLINE));
         assertParseFailure(parser,
-                " 1 desc/First desc/Second",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_DESCRIPTION));
+            " 1 desc/First desc/Second",
+            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_DESCRIPTION));
     }
 
     @Test
@@ -154,7 +155,7 @@ public class EditProjectCommandParserTest {
 
         for (String name : invalidNames) {
             assertParseFailure(parser, " 1 pr/" + name,
-                    ProjectName.MESSAGE_CONSTRAINTS);
+                ProjectName.MESSAGE_CONSTRAINTS);
         }
     }
 
@@ -173,7 +174,7 @@ public class EditProjectCommandParserTest {
 
         for (String deadline : invalidDeadlines) {
             assertParseFailure(parser, " 1 d/" + deadline,
-                    ParserUtil.MESSAGE_INVALID_DEADLINE);
+                ParserUtil.MESSAGE_INVALID_DEADLINE);
         }
     }
 
@@ -201,22 +202,22 @@ public class EditProjectCommandParserTest {
     @Test
     public void parse_descriptionTooLong_failure() {
         assertParseFailure(parser, " 1 desc/" + "a".repeat(201),
-                Description.MESSAGE_CONSTRAINTS);
+            Description.MESSAGE_CONSTRAINTS);
     }
 
     @Test
     public void parse_lineBreaks_failure() {
         String expectedMessage = String.format(
-                MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE);
+            MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE);
         String[] lineBreaks = {"\r", "\n", "\u0085", "\u2028", "\u2029"};
 
         for (String lineBreak : lineBreaks) {
             assertParseFailure(parser,
-                    " 1 desc/First" + lineBreak + "Second", expectedMessage);
+                " 1 desc/First" + lineBreak + "Second", expectedMessage);
             assertParseFailure(parser,
-                    " 1 desc/Description" + lineBreak, expectedMessage);
+                " 1 desc/Description" + lineBreak, expectedMessage);
             assertParseFailure(parser,
-                    " 1 pr/First" + lineBreak + "Second", expectedMessage);
+                " 1 pr/First" + lineBreak + "Second", expectedMessage);
         }
     }
 
@@ -225,10 +226,10 @@ public class EditProjectCommandParserTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setName(new ProjectName("Updated Project"));
 
-        org.junit.jupiter.api.Assertions.assertEquals(
-                new EditProjectCommand(Index.fromOneBased(1), descriptor),
-                new AddressBookParser().parseCommand(
-                        "editproject 1 pr/Updated Project"));
+        assertEquals(
+            new EditProjectCommand(Index.fromOneBased(1), descriptor),
+            new AddressBookParser().parseCommand(
+                "editproject 1 pr/Updated Project"));
     }
 
     /**
@@ -236,6 +237,6 @@ public class EditProjectCommandParserTest {
      */
     private void assertParsedCommand(String input, EditProjectDescriptor descriptor) {
         assertParseSuccess(parser, input,
-                new EditProjectCommand(Index.fromOneBased(1), descriptor));
+            new EditProjectCommand(Index.fromOneBased(1), descriptor));
     }
 }

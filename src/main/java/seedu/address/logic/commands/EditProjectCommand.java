@@ -28,15 +28,15 @@ public class EditProjectCommand extends Command {
     public static final String COMMAND_WORD = "editproject";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the project identified "
-            + "by the index number used in the displayed project list. "
-            + "Existing values will be overwritten by the input values.\n"
-            + "Parameters: INDEX (must be a positive integer) "
-            + "[" + PREFIX_PROJECT + "PROJECT_NAME] "
-            + "[" + PREFIX_DEADLINE + "DEADLINE] "
-            + "[" + PREFIX_DESCRIPTION + "DESCRIPTION] "
-            + "Example: " + COMMAND_WORD + " 1 "
-            + PREFIX_PROJECT + "New Project Name "
-            + PREFIX_DEADLINE + "2027-01-01";
+        + "by the index number used in the displayed project list. "
+        + "Existing values will be overwritten by the input values.\n"
+        + "Parameters: INDEX (must be a positive integer) "
+        + "[" + PREFIX_PROJECT + "PROJECT_NAME] "
+        + "[" + PREFIX_DEADLINE + "DEADLINE] "
+        + "[" + PREFIX_DESCRIPTION + "DESCRIPTION] "
+        + "Example: " + COMMAND_WORD + " 1 "
+        + PREFIX_PROJECT + "New Project Name "
+        + PREFIX_DEADLINE + "2027-01-01";
 
     public static final String MESSAGE_EDIT_PROJECT_SUCCESS = "Edited project: %1$s";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
@@ -46,7 +46,7 @@ public class EditProjectCommand extends Command {
     private final EditProjectDescriptor editProjectDescriptor;
 
     /**
-     * @param index of the project in the filtered project list to edit
+     * @param index                 of the project in the filtered project list to edit
      * @param editProjectDescriptor details to edit the project with
      */
     public EditProjectCommand(Index index, EditProjectDescriptor editProjectDescriptor) {
@@ -70,8 +70,8 @@ public class EditProjectCommand extends Command {
         Project editedProject = createEditedProject(projectToEdit, editProjectDescriptor);
 
         boolean hasDuplicateName = model.findProject(editedProject.getName())
-                .filter(project -> !project.isSameProject(projectToEdit))
-                .isPresent();
+            .filter(project -> !project.isSameProject(projectToEdit))
+            .isPresent();
 
         if (hasDuplicateName) {
             throw new CommandException(MESSAGE_DUPLICATE_PROJECT);
@@ -93,7 +93,7 @@ public class EditProjectCommand extends Command {
         Description updatedDescription = editProjectDescriptor.getDescription().orElse(projectToEdit.getDescription());
 
         return new Project(projectToEdit.getProjectId(), updatedName,
-                updatedDeadline, updatedDescription);
+            updatedDeadline, updatedDescription);
     }
 
     @Override
@@ -108,27 +108,29 @@ public class EditProjectCommand extends Command {
         }
 
         return index.equals(otherEditProjectCommand.index)
-                && editProjectDescriptor.equals(otherEditProjectCommand.editProjectDescriptor);
+            && editProjectDescriptor.equals(otherEditProjectCommand.editProjectDescriptor);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .add("index", index)
-                .add("editProjectDescriptor", editProjectDescriptor)
-                .toString();
+            .add("index", index)
+            .add("editProjectDescriptor", editProjectDescriptor)
+            .toString();
     }
 
     /**
      * Stores the details to edit the project with. Each non-empty field value will replace the
-     * corresponding field value of the project.
+     * corresponding field value of the project. Omitted fields remain unchanged and an
+     * empty description clears it.
      */
     public static class EditProjectDescriptor {
         private ProjectName name;
         private Deadline deadline;
         private Description description;
 
-        public EditProjectDescriptor() {}
+        public EditProjectDescriptor() {
+        }
 
         /**
          * Copy constructor.
@@ -182,17 +184,17 @@ public class EditProjectCommand extends Command {
             }
 
             return Objects.equals(name, otherEditProjectDescriptor.name)
-                    && Objects.equals(deadline, otherEditProjectDescriptor.deadline)
-                    && Objects.equals(description, otherEditProjectDescriptor.description);
+                && Objects.equals(deadline, otherEditProjectDescriptor.deadline)
+                && Objects.equals(description, otherEditProjectDescriptor.description);
         }
 
         @Override
         public String toString() {
             return new ToStringBuilder(this)
-                    .add("name", name)
-                    .add("deadline", deadline)
-                    .add("description", description)
-                    .toString();
+                .add("name", name)
+                .add("deadline", deadline)
+                .add("description", description)
+                .toString();
         }
     }
 }

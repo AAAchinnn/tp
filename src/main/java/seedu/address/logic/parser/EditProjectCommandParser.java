@@ -19,22 +19,23 @@ public class EditProjectCommandParser implements Parser<EditProjectCommand> {
     /**
      * Parses the given {@code String} of arguments in the context of the EditProjectCommand
      * and returns an EditProjectCommand object for execution.
+     *
      * @throws ParseException if the user input does not conform to the expected format
      */
     public EditProjectCommand parse(String args) throws ParseException {
         requireNonNull(args);
 
         if (args.codePoints().anyMatch(codePoint -> codePoint == '\r'
-                || codePoint == '\n'
-                || codePoint == '\u0085'
-                || codePoint == '\u2028'
-                || codePoint == '\u2029')) {
+            || codePoint == '\n'
+            || codePoint == '\u0085'
+            || codePoint == '\u2028'
+            || codePoint == '\u2029')) {
             throw new ParseException(String.format(
-                    MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE));
+                MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE));
         }
 
         ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_PROJECT, PREFIX_DEADLINE, PREFIX_DESCRIPTION);
+            ArgumentTokenizer.tokenize(args, PREFIX_PROJECT, PREFIX_DEADLINE, PREFIX_DESCRIPTION);
 
         Index index;
 
@@ -42,8 +43,8 @@ public class EditProjectCommandParser implements Parser<EditProjectCommand> {
             index = ParserUtil.parseIndex(argMultimap.getPreamble());
         } catch (ParseException pe) {
             throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE),
-                    pe
+                String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE),
+                pe
             );
         }
 
@@ -60,8 +61,8 @@ public class EditProjectCommandParser implements Parser<EditProjectCommand> {
         if (argMultimap.getValue(PREFIX_DESCRIPTION).isPresent()) {
             String description = argMultimap.getValue(PREFIX_DESCRIPTION).get();
             editProjectDescriptor.setDescription(description.isBlank()
-                    ? Description.EMPTY
-                    : ParserUtil.parseDescription(description));
+                ? Description.EMPTY
+                : ParserUtil.parseDescription(description));
         }
 
         if (!editProjectDescriptor.isAnyFieldEdited()) {
