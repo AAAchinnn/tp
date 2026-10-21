@@ -28,6 +28,7 @@ public class ListProjectsCommandTest {
         CommandResult result = new ListProjectsCommand().execute(model);
 
         assertEquals(ListProjectsCommand.MESSAGE_EMPTY, result.getFeedbackToUser());
+        assertEquals(CommandResult.ListViewTarget.PROJECTS, result.getListViewTarget());
     }
 
     @Test

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.nio.file.Path;
 import java.util.concurrent.FutureTask;
@@ -24,6 +23,7 @@ import seedu.address.model.ModelManager;
 import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
+import seedu.address.testutil.JavaFxTestUtil;
 
 public class UiManagerTest {
     @TempDir
@@ -31,12 +31,7 @@ public class UiManagerTest {
 
     @BeforeAll
     public static void setUpToolkit() throws Exception {
-        boolean isLinux = System.getProperty("os.name").toLowerCase().contains("linux");
-        assumeTrue(!isLinux || System.getenv("DISPLAY") != null || System.getenv("WAYLAND_DISPLAY") != null,
-                "JavaFX UI tests require a graphical display.");
-        FutureTask<Void> startup = new FutureTask<>(() -> Platform.setImplicitExit(false), null);
-        Platform.startup(startup);
-        startup.get(10, TimeUnit.SECONDS);
+        JavaFxTestUtil.startToolkit();
     }
 
     @Test

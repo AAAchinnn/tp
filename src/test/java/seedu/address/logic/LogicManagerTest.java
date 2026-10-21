@@ -266,7 +266,8 @@ public class LogicManagerTest {
             assertEquals(new CommandResult(expectedResult.getFeedbackToUser()
                     + "\nSaving is disabled because the data file could not be loaded."
                     + " Changes in this session will be lost.",
-                    expectedResult.isShowHelp(), expectedResult.isExit()), actualResult);
+                    expectedResult.isShowHelp(), expectedResult.isExit(), expectedResult.getListViewTarget()),
+                    actualResult);
             assertEquals(expectedModel, model);
             assertEquals(invalidJson, Files.readString(filePath));
         }

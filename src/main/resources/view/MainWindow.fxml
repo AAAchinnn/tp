@@ -25,7 +25,7 @@
         <URL value="@Extensions.css" />
       </stylesheets>
 
-      <VBox>
+      <VBox styleClass="uniteam-window">
         <MenuBar fx:id="menuBar" VBox.vgrow="NEVER">
           <Menu mnemonicParsing="false" text="File">
             <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
@@ -48,16 +48,16 @@
           </padding>
         </StackPane>
 
-        <TabPane styleClass="project-tab-pane" VBox.vgrow="ALWAYS">
+        <TabPane fx:id="listTabs" styleClass="project-tab-pane" VBox.vgrow="ALWAYS">
           <tabs>
-            <Tab text="Contacts" closable="false">
+            <Tab fx:id="contactsTab" text="Contacts" closable="false">
               <StackPane fx:id="personListPanelPlaceholder" styleClass="pane-with-border">
                 <padding>
                   <Insets top="10" right="10" bottom="10" left="10" />
                 </padding>
               </StackPane>
             </Tab>
-            <Tab text="Projects" closable="false">
+            <Tab fx:id="projectsTab" text="Projects" closable="false">
               <StackPane fx:id="projectListPanelPlaceholder" styleClass="pane-with-border">
                 <padding>
                   <Insets top="10" right="10" bottom="10" left="10" />

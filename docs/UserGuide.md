@@ -229,9 +229,15 @@ Example:
 
 1. Create a project with `addproject n/CS2103T Team Project d/2026-11-13`.
 2. Associate a contact with it, for example `associate c/1 pr/1`.
-3. Run `listmembers pr/CS2103T Team Project` to see the associated contact names.
+3. Run `listmembers pr/CS2103T Team Project` to see the associated contacts as cards in the Contacts tab.
 
-If the project exists but has no associated contacts, UniTeam reports that no contacts are associated with it.
+UniTeam automatically opens the Contacts tab and shows only members of the named project, including their phone,
+email, address and tags. Index-based commands use the numbers on these displayed cards.
+Use `list` to restore all contacts, or `find KEYWORD` to replace the member filter with a name search.
+Use `listprojects` to switch to the Projects tab.
+
+If the project exists but has no associated contacts, UniTeam reports that no contacts are associated with it
+and displays an empty contact list.
 If no project has the specified name, UniTeam reports that the project does not exist. Project names are matched
 without regard to letter case and with whitespace normalised.
 

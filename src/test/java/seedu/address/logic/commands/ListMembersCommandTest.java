@@ -8,9 +8,11 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
@@ -53,6 +55,8 @@ public class ListMembersCommandTest {
         String expectedMessage = String.format(ListMembersCommand.MESSAGE_NO_MEMBERS, project.getName());
 
         assertEquals(expectedMessage, result.getFeedbackToUser());
+        assertEquals(List.of(), model.getFilteredPersonList());
+        assertEquals(CommandResult.ListViewTarget.CONTACTS, result.getListViewTarget());
     }
 
     @Test
@@ -68,6 +72,63 @@ public class ListMembersCommandTest {
 
         String expectedMessage = "Contacts in project \"CS2103T Team Project\" (2):\n1. Alice Pauline\n2. Benson Meier";
         assertEquals(expectedMessage, result.getFeedbackToUser());
+        assertEquals(List.of(ALICE, BENSON), model.getFilteredPersonList());
+        assertEquals(CommandResult.ListViewTarget.CONTACTS, result.getListViewTarget());
+    }
+
+    @Test
+    public void execute_filtersCardsAndListRestoresAllContacts() throws Exception {
+        Model model = new ModelManager();
+        model.addPerson(ALICE);
+        model.addPerson(BENSON);
+        model.addProject(project);
+        model.addProjectMembership(new ProjectMembership(BENSON.getPersonId(), project.getProjectId()));
+        model.updateFilteredPersonList(person -> person.equals(ALICE));
+
+        new ListMembersCommand(project.getName()).execute(model);
+        assertEquals(List.of(BENSON), model.getFilteredPersonList());
+
+        new ListCommand().execute(model);
+        assertEquals(List.of(ALICE, BENSON), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_membershipChanges_refreshDisplayedCards() throws Exception {
+        Model model = new ModelManager();
+        model.addPerson(ALICE);
+        model.addPerson(BENSON);
+        model.addProject(project);
+        new ListMembersCommand(project.getName()).execute(model);
+        assertEquals(List.of(), model.getFilteredPersonList());
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+
+        model.addProjectMembership(membership);
+        assertEquals(List.of(ALICE), model.getFilteredPersonList());
+        model.removeProjectMembership(membership);
+        assertEquals(List.of(), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_unknownProject_preservesCurrentCards() {
+        Model model = new ModelManager();
+        model.addPerson(ALICE);
+        assertThrows(CommandException.class, () -> new ListMembersCommand(project.getName()).execute(model));
+        assertEquals(List.of(ALICE), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_deleteUsesDisplayedMemberIndex() throws Exception {
+        Model model = new ModelManager();
+        model.addPerson(ALICE);
+        model.addPerson(BENSON);
+        model.addProject(project);
+        model.addProjectMembership(new ProjectMembership(BENSON.getPersonId(), project.getProjectId()));
+        new ListMembersCommand(project.getName()).execute(model);
+
+        new DeleteCommand(Index.fromOneBased(1)).execute(model);
+
+        assertEquals(List.of(ALICE), model.getAddressBook().getPersonList());
+        assertTrue(model.getFilteredPersonList().isEmpty());
     }
 
     @Test
