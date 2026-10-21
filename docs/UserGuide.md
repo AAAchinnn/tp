@@ -221,7 +221,8 @@ Repeating dissociation for the same pair reports that the contact is not associa
 
 ### Listing project members: `listmembers`
 
-Lists the contacts associated with a project, in the order they appear in the contact list.
+Lists the contacts associated with a project, in the order they appear in the contact list. A member's role is shown
+beside their name when one has been assigned.
 
 Format: `listmembers pr/PROJECT_NAME`
 
@@ -234,6 +235,22 @@ Example:
 If the project exists but has no associated contacts, UniTeam reports that no contacts are associated with it.
 If no project has the specified name, UniTeam reports that the project does not exist. Project names are matched
 without regard to letter case and with whitespace normalised.
+
+### Setting a project member's role: `setrole`
+
+Sets a short description of a contact's task allotment in a project. Roles belong to a contact-project association,
+so the same contact can have different roles in different projects.
+
+Format: `setrole c/CONTACT_INDEX pr/PROJECT_INDEX r/ROLE`
+
+* `CONTACT_INDEX` is the numbered contact in the Contacts tab, including current search results.
+* `PROJECT_INDEX` is the numbered project in the Projects tab.
+* `ROLE` must be non-empty, no more than 200 characters, and contain no line breaks.
+* The contact must already be associated with the selected project using `associate`.
+
+Example: `setrole c/2 pr/1 r/Implement the parser` assigns that task allotment to contact 2 in project 1. Run
+`listmembers pr/CS2103T Team Project` to see the role beside the contact's name. The role is saved with the membership
+and remains after restarting UniTeam. Existing data without a role continues to load with an empty role.
 
 ### Clearing all entries: `clear`
 
@@ -301,4 +318,6 @@ Action     | Format, Examples
 **List**   | `list`
 **List projects** | `listprojects`
 **List members** | `listmembers pr/PROJECT_NAME`<br> e.g., `listmembers pr/CS2103T Team Project`
+
+**Set member role** | `setrole c/CONTACT_INDEX pr/PROJECT_INDEX r/ROLE`<br> e.g., `setrole c/2 pr/1 r/Implement the parser`
 **Help**   | `help`
