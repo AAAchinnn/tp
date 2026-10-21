@@ -60,9 +60,8 @@ public class AddressBookTest {
 
     @Test
     public void resetData_withDuplicatePersons_throwsDuplicatePersonException() {
-        // Two persons with the same identity fields
-        Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
-                .build();
+        // Matching contact details must be rejected even when identifiers differ.
+        Person editedAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
         List<Person> newPersons = List.of(ALICE, editedAlice);
         AddressBookStub newData = new AddressBookStub(newPersons, List.of());
 
@@ -86,11 +85,48 @@ public class AddressBookTest {
     }
 
     @Test
-    public void hasPerson_personWithSameIdentityFieldsInAddressBook_returnsTrue() {
+    public void hasPerson_sameNameWithDifferentDetails_returnsFalse() {
         addressBook.addPerson(ALICE);
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
                 .build();
-        assertTrue(addressBook.hasPerson(editedAlice));
+        assertFalse(addressBook.hasPerson(editedAlice));
+    }
+
+    @Test
+    public void setPerson_sameNameContacts_preservesIdsAndMemberships() {
+        Project project = createProject("CS2103T");
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+        ProjectMembership aliceMembership = addMembership(addressBook, ALICE, project);
+        addressBook.addPerson(otherAlice);
+        ProjectMembership otherMembership = new ProjectMembership(otherAlice.getPersonId(), project.getProjectId());
+        addressBook.addProjectMembership(otherMembership);
+        Person editedAlice = new PersonBuilder(ALICE).withTags(VALID_TAG_HUSBAND).build();
+
+        addressBook.setPerson(ALICE, editedAlice);
+
+        assertEquals(List.of(editedAlice, otherAlice), addressBook.getPersonList());
+        assertEquals(List.of(ALICE.getPersonId(), otherAlice.getPersonId()),
+                addressBook.getPersonList().stream().map(Person::getPersonId).toList());
+        assertEquals(List.of(aliceMembership, otherMembership), addressBook.getProjectMembershipList());
+        assertEquals(List.of(editedAlice, otherAlice), addressBook.getProjectMembers(project));
+    }
+
+    @Test
+    public void removePerson_sameNameContacts_removesOnlySelectedContactAndMemberships() {
+        Project project = createProject("CS2103T");
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+        addMembership(addressBook, ALICE, project);
+        addressBook.addPerson(otherAlice);
+        ProjectMembership otherMembership = new ProjectMembership(otherAlice.getPersonId(), project.getProjectId());
+        addressBook.addProjectMembership(otherMembership);
+
+        addressBook.removePerson(ALICE);
+
+        assertEquals(List.of(otherAlice), addressBook.getPersonList());
+        assertEquals(List.of(otherMembership), addressBook.getProjectMembershipList());
+        assertEquals(List.of(otherAlice), addressBook.getProjectMembers(project));
     }
 
     @Test

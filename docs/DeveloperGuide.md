@@ -141,7 +141,15 @@ The `Model` component,
 
 Each `Person` owns exactly one `PersonId`, shown by the composition in the Model diagrams. The normal `Person` constructor generates a new ID, while the reconstruction constructor accepts an existing ID. Editing replaces the person's details but preserves its ID.
 
-IDs provide stable internal references and are separate from contact duplicate detection. `Person#isSamePerson` remains name-based, and `UniquePersonList` still uses it to reject duplicate contacts. `Person#equals` and `Person#hashCode` continue to compare the existing contact fields without including the ID; otherwise equal contacts with different IDs remain equal.
+IDs provide stable internal references and are separate from contact duplicate detection. `Person#isSamePerson`
+delegates to `Person#equals`, comparing name, phone, email, address, and tags without including `PersonId`.
+Tags are compared as a set, so their order does not matter. `Person#hashCode` uses the same five fields.
+Contacts with matching details remain duplicates even when their IDs differ; contacts sharing a name are allowed
+when any other field differs. `UniquePersonList` separately enforces unique IDs.
+
+`AddCommand` and `EditCommand` use `Model#hasPerson`, which checks the complete address book rather than the filtered
+contact list. `UniquePersonList` enforces the same duplicate rule for additions, replacements, and bulk updates.
+An unchanged edit is allowed; a changed contact must not match another contact's complete details.
 
 A `ProjectMembership` represents the association between one contact and one project. It stores only the contact's
 `PersonId` and the project's `ProjectId`; it does not store copies of the corresponding `Person` or `Project`.
@@ -187,7 +195,12 @@ The `Storage` component,
 
 `JsonAdaptedPerson` saves each contact's `PersonId` as an `id` string in the address book JSON file and restores it when loading. A missing or null `id` is supported for legacy data and generates a new ID, which is persisted on the next save. A present ID must use the standard UUID format, with either uppercase or lowercase hexadecimal digits. Malformed IDs cause an `IllegalValueException`, which `JsonAddressBookStorage` reports as a `DataLoadingException`.
 
-`JsonSerializableAddressBook#toModelType()` also tracks restored IDs in a `Set<PersonId>` and rejects duplicate IDs with a dedicated error message. UUIDs that differ only in capitalization represent the same ID. The existing name-based duplicate-person check runs first, and a contact is added only after both checks pass. Duplicate IDs are reported as invalid data through the same storage-loading exception path as malformed IDs.
+`JsonSerializableAddressBook#toModelType()` also tracks restored IDs in a `Set<PersonId>` and rejects duplicate IDs
+with a dedicated error message. UUIDs that differ only in capitalization represent the same ID. The duplicate-person
+check runs first and compares all five contact fields through `AddressBook#hasPerson`; a contact is added only after
+both checks pass. Same-name contacts with different details and distinct IDs can therefore be saved and loaded
+together. Duplicate IDs are reported as invalid data through the same storage-loading exception path as malformed
+IDs. The JSON format is unchanged, and memberships continue to reference contacts by their IDs.
 
 #### Legacy migration
 
@@ -604,6 +617,57 @@ testers are expected to do more *exploratory* testing.
        Expected: The most recent window size and location are retained.
 
 1. _{ more test cases … }_
+
+### Contacts with the same name
+
+1. Adding same-name contacts and rejecting exact duplicates
+
+   1. Prerequisites: Use a disposable copy of the app and data file. Execute `clear` to start with an empty address
+      book; this removes the disposable copy's existing contacts, projects, and memberships.
+
+   1. Execute `add n/Alex Tan p/91234567 e/alex@example.com a/Block 1 t/friend t/classmate`, then
+      `add n/Alex Tan p/98765432 e/alex@example.com a/Block 1 t/classmate t/friend`.<br>
+      Expected: Both commands succeed. The Contacts tab shows two contacts named Alex Tan with different phone
+      numbers. Their saved JSON entries have distinct `id` values.
+
+   1. Repeat the first command with the tags in reverse order.<br>
+      Expected: `This contact already exists in UniTeam.` No contact is added; tag order does not distinguish contacts.
+
+   1. Execute `find Nobody`, then repeat the first `add` command.<br>
+      Expected: The filtered list is empty, but the addition is still rejected as a duplicate. Execute `list` and
+      confirm that both original contacts remain with their details and IDs unchanged.
+
+1. Editing same-name contacts
+
+   1. Prerequisites: Continue from the preceding test with both contacts displayed in their original order.
+
+   1. Execute `edit 2 n/Alex Tan`.<br>
+      Expected: The edit succeeds although the supplied name is unchanged.
+
+   1. Execute `edit 2 p/91234567`.<br>
+      Expected: `This contact already exists in UniTeam.` The second contact still has phone number `98765432`.
+
+   1. Execute `edit 2 n/Jamie Tan`, then `find Jamie`, then `edit 1 p/91234567 n/Alex Tan`.<br>
+      Expected: The first two commands succeed. The final edit is rejected because it would match the hidden Alex
+      Tan contact's complete details. Execute `list` and confirm that Jamie Tan's details and both IDs are unchanged.
+
+   1. Execute `edit 2 n/Alex Tan a/Block 2`.<br>
+      Expected: The edit succeeds. Both contacts share a name, retain their IDs, and have different details.
+
+1. Saving same-name contacts and independent memberships
+
+   1. Prerequisites: Continue from the editing test with both contacts displayed. Execute
+      `addproject n/First project d/2027-01-01` and `addproject n/Second project d/2027-01-02`.
+
+   1. Execute `associate c/1 pr/1` and `associate c/2 pr/2`, then record the contact IDs and membership ID pairs in
+      `data/addressbook.json`.
+
+   1. Close and restart the app, then execute `list`, `listmembers pr/First project`, and
+      `listmembers pr/Second project`.<br>
+      Expected: Both same-name contacts load with their saved details. Each project reports one member named
+      Alex Tan. Since the member output shows names only, check the saved JSON to confirm that the first project
+      still references the first contact's ID, the second project references the second contact's ID, and all
+      recorded contact IDs and membership pairs are unchanged.
 
 ### Deleting a person
 
