@@ -40,6 +40,17 @@ public class ProjectMembershipTest {
     }
 
     @Test
+    public void withRole_replacesRoleAndPreservesMembershipIdentity() {
+        ProjectMembership membership = new ProjectMembership(PERSON_ID, PROJECT_ID);
+        Role role = new Role("Write tests");
+
+        ProjectMembership updatedMembership = membership.withRole(role);
+
+        assertEquals(role, updatedMembership.getRole());
+        assertEquals(membership, updatedMembership);
+    }
+
+    @Test
     public void equals_sameIds_returnsTrue() {
         ProjectMembership membership = new ProjectMembership(PERSON_ID, PROJECT_ID);
         ProjectMembership membershipWithSameIds = new ProjectMembership(PERSON_ID, PROJECT_ID);
