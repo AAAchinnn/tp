@@ -126,6 +126,9 @@ public interface Model {
      */
     void addProjectMembership(ProjectMembership membership);
 
+    /** Replaces the existing membership with the same person and project identifiers. */
+    void setProjectMembership(ProjectMembership membership);
+
     /**
      * Removes the given project membership from the address book.
      * The membership must exist in the address book.
