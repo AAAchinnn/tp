@@ -29,20 +29,20 @@ public class SetRoleCommandTest {
 
     @Test
     public void constructor_nullContactIndex_throwsNullPointerException() {
-        assertThrows(NullPointerException.class,
-                () -> new SetRoleCommand(null, Index.fromOneBased(1), new Role("Implement parser")));
+        assertThrows(NullPointerException.class, () -> new SetRoleCommand(null,
+                Index.fromOneBased(1), new Role("Implement parser")));
     }
 
     @Test
     public void constructor_nullProjectIndex_throwsNullPointerException() {
-        assertThrows(NullPointerException.class,
-                () -> new SetRoleCommand(Index.fromOneBased(1), null, new Role("Implement parser")));
+        assertThrows(NullPointerException.class, () -> new SetRoleCommand(Index.fromOneBased(1), null,
+                new Role("Implement parser")));
     }
 
     @Test
     public void constructor_nullRole_throwsNullPointerException() {
-        assertThrows(NullPointerException.class,
-                () -> new SetRoleCommand(Index.fromOneBased(1), Index.fromOneBased(1), null));
+        assertThrows(NullPointerException.class, () -> new SetRoleCommand(Index.fromOneBased(1),
+                Index.fromOneBased(1), null));
     }
 
     @Test
@@ -83,8 +83,8 @@ public class SetRoleCommandTest {
         SetRoleCommand command = new SetRoleCommand(Index.fromOneBased(1), Index.fromOneBased(1),
                 new Role("Implement parser"));
 
-        assertThrows(CommandException.class, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX,
-                () -> command.execute(model));
+        assertThrows(CommandException.class, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX, () ->
+                command.execute(model));
     }
 
     @Test
@@ -94,8 +94,8 @@ public class SetRoleCommandTest {
         SetRoleCommand command = new SetRoleCommand(Index.fromOneBased(1), Index.fromOneBased(1),
                 new Role("Implement parser"));
 
-        assertThrows(CommandException.class, Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX,
-                () -> command.execute(model));
+        assertThrows(CommandException.class, Messages.MESSAGE_INVALID_PROJECT_DISPLAYED_INDEX, () ->
+                command.execute(model));
     }
 
     @Test
@@ -121,8 +121,10 @@ public class SetRoleCommandTest {
         SetRoleCommand command = new SetRoleCommand(Index.fromOneBased(1), Index.fromOneBased(2),
                 new Role("Implement parser"));
 
-        assertTrue(command.toString().contains("contactIndex=1"));
-        assertTrue(command.toString().contains("projectIndex=2"));
+        assertTrue(command.toString().contains(
+                "contactIndex=seedu.address.commons.core.index.Index{zeroBasedIndex=0}"));
+        assertTrue(command.toString().contains(
+                "projectIndex=seedu.address.commons.core.index.Index{zeroBasedIndex=1}"));
         assertTrue(command.toString().contains("role=Implement parser"));
     }
 }
