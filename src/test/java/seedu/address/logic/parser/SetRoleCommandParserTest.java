@@ -30,8 +30,14 @@ public class SetRoleCommandParserTest {
 
     @Test
     public void parse_missingOrInvalidArgument_fails() {
+        assertParseFailure(parser, " pr/1 r/Implement the parser", USAGE);
+        assertParseFailure(parser, " c/2 r/Implement the parser", USAGE);
         assertParseFailure(parser, " c/2 pr/1", USAGE);
         assertParseFailure(parser, " c/2 pr/1 r/", USAGE + "\n" + Role.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " c/2 pr/1 r/" + "x".repeat(201),
+                USAGE + "\n" + Role.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " c/2 pr/1 r/line\nbreak", USAGE + "\n" + Role.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " extra c/2 pr/1 r/Implement the parser", USAGE);
         assertParseFailure(parser, " c/0 pr/1 r/Build feature", USAGE + "\nIndex must be a positive integer.");
         assertParseFailure(parser, " c/2 pr/1 r/First r/Second",
                 seedu.address.logic.Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_ROLE));

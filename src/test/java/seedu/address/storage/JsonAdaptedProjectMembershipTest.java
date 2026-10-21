@@ -27,6 +27,15 @@ public class JsonAdaptedProjectMembershipTest {
         JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(MEMBERSHIP);
 
         assertEquals(MEMBERSHIP, membership.toModelType());
+        assertEquals(Role.EMPTY, membership.toModelType().getRole());
+    }
+
+    @Test
+    public void toModelType_legacyMembershipWithoutRole_usesEmptyRole() throws Exception {
+        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(
+                VALID_PERSON_ID, VALID_PROJECT_ID, null);
+
+        assertEquals(Role.EMPTY, membership.toModelType().getRole());
     }
 
     @Test
@@ -77,5 +86,13 @@ public class JsonAdaptedProjectMembershipTest {
         String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, ProjectId.class.getSimpleName());
 
         assertThrows(IllegalValueException.class, expectedMessage, membership::toModelType);
+    }
+
+    @Test
+    public void toModelType_invalidRole_throwsIllegalValueException() {
+        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(
+                VALID_PERSON_ID, VALID_PROJECT_ID, "line one\nline two");
+
+        assertThrows(IllegalValueException.class, Role.MESSAGE_CONSTRAINTS, membership::toModelType);
     }
 }

@@ -33,9 +33,11 @@ import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.ListProjectsCommand;
+import seedu.address.logic.commands.SetRoleCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
+import seedu.address.model.membership.Role;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.project.Deadline;
@@ -62,6 +64,14 @@ public class AddressBookParserTest {
 
         assertEquals(expectedCommand, parser.parseCommand("associate c/2 pr/1"));
         assertEquals(expectedCommand, parser.parseCommand("associate pr/1 c/2"));
+    }
+
+    @Test
+    public void parseCommand_setRole() throws Exception {
+        SetRoleCommand expectedCommand = new SetRoleCommand(
+                Index.fromOneBased(2), Index.fromOneBased(1), new Role("Implement the parser"));
+
+        assertEquals(expectedCommand, parser.parseCommand("setrole c/2 pr/1 r/Implement the parser"));
     }
 
     @Test
