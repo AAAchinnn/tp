@@ -37,6 +37,7 @@ public class ProjectMembershipTest {
 
         assertEquals(PERSON_ID, membership.getPersonId());
         assertEquals(PROJECT_ID, membership.getProjectId());
+        assertEquals(Role.EMPTY, membership.getRole());
     }
 
     @Test
@@ -48,6 +49,18 @@ public class ProjectMembershipTest {
 
         assertEquals(role, updatedMembership.getRole());
         assertEquals(membership, updatedMembership);
+    }
+
+    @Test
+    public void constructor_nullRole_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new ProjectMembership(PERSON_ID, PROJECT_ID, null));
+    }
+
+    @Test
+    public void withRole_nullRole_throwsNullPointerException() {
+        ProjectMembership membership = new ProjectMembership(PERSON_ID, PROJECT_ID);
+
+        assertThrows(NullPointerException.class, () -> membership.withRole(null));
     }
 
     @Test

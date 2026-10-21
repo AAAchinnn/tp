@@ -93,6 +93,11 @@ public class UniqueProjectMembershipListTest {
     }
 
     @Test
+    public void set_nullMembership_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> memberships.set(null));
+    }
+
+    @Test
     public void set_existingMembership_replacesValueAndKeepsPosition() {
         memberships.add(MEMBERSHIP);
         memberships.add(SAME_PERSON_OTHER_PROJECT);
