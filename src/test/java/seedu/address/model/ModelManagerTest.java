@@ -210,6 +210,11 @@ public class ModelManagerTest {
     }
 
     @Test
+    public void setProjectMembership_nullMembership_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.setProjectMembership(null));
+    }
+
+    @Test
     public void addProjectMembership_validMembership_updatesAddressBookAndPreservesFilter() {
         Model model = modelManager;
         Project project = createProject("CS2103T");
