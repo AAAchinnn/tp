@@ -27,6 +27,18 @@ checkstyle {
 
 test {
     useJUnitPlatform()
+    // ImageIO only needs off-screen images; JavaFX manages its own display toolkit.
+    systemProperty 'java.awt.headless', 'true'
+    testLogging {
+        events 'failed', 'skipped'
+        exceptionFormat = 'full'
+    }
+    if (System.getenv('CI') == 'true') {
+        // Keep the active test name in CI logs even if a native crash terminates the JVM.
+        beforeTest { descriptor ->
+            logger.lifecycle("Running ${descriptor.className}.${descriptor.name}")
+        }
+    }
     finalizedBy jacocoTestReport
 }
 

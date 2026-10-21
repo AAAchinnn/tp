@@ -26,7 +26,8 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '25'
-          java-package: jdk+fx
+          # Use the JavaFX version declared in Gradle, not a second copy bundled with the JDK.
+          java-package: jdk
 
       - name: Install virtual display for JavaFX tests
         if: runner.os == 'Linux'
@@ -41,6 +42,19 @@ jobs:
       - name: Build and check with Gradle
         if: runner.os != 'Linux'
         run: ./gradlew check coverage
+
+      - name: Upload test and crash diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-diagnostics-${{ matrix.platform }}
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            build/reports/tests/
+            build/test-results/
+            **/hs_err_pid*.log
+            **/replay_pid*.log
 
       - name: Upload coverage reports to Codecov
         if: runner.os == 'Linux'
