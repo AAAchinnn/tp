@@ -9,6 +9,7 @@ import static seedu.address.testutil.TypicalPersons.BENSON;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,6 +18,7 @@ import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.person.Person;
 import seedu.address.model.project.Deadline;
 import seedu.address.model.project.Description;
 import seedu.address.model.project.Project;
@@ -106,6 +108,22 @@ public class ListMembersCommandTest {
         assertEquals(List.of(ALICE), model.getFilteredPersonList());
         model.removeProjectMembership(membership);
         assertEquals(List.of(), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_inconsistentMemberFilter_throwsAssertionError() {
+        Model model = new ModelManager() {
+            @Override
+            public void updateFilteredPersonList(Predicate<Person> predicate) {
+                // Simulate a faulty model that ignores the requested project-member filter.
+            }
+        };
+        model.addPerson(ALICE);
+        model.addProject(project);
+
+        ListMembersCommand command = new ListMembersCommand(project.getName());
+        String expectedMessage = "Displayed members must match project membership";
+        assertThrows(AssertionError.class, expectedMessage, () -> command.execute(model));
     }
 
     @Test

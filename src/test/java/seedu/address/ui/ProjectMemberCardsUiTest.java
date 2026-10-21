@@ -76,6 +76,8 @@ public class ProjectMemberCardsUiTest {
 
                 enterCommand(input, "listprojects");
                 assertEquals("Projects", tabs.getSelectionModel().getSelectedItem().getText());
+                enterCommand(input, "addproject n/UI Demo d/2026-11-13");
+                assertEquals("Projects", tabs.getSelectionModel().getSelectedItem().getText());
                 enterCommand(input, "listmembers pr/CS2103T Team Project");
                 assertEquals("Contacts", tabs.getSelectionModel().getSelectedItem().getText());
                 assertEquals(List.of(BENSON), model.getFilteredPersonList());

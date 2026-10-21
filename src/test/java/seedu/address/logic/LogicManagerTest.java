@@ -274,6 +274,36 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_viewCommandSaveFails_preservesFeedbackFlagsAndListTarget() throws Exception {
+        model.addPerson(AMY);
+        Project project = new ProjectBuilder().build();
+        model.addProject(project);
+        model.addProjectMembership(new ProjectMembership(AMY.getPersonId(), project.getProjectId()));
+        JsonAddressBookStorage failingStorage =
+                new JsonAddressBookStorage(temporaryFolder.resolve("unwritable.json")) {
+                    @Override
+                    public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                        throw DUMMY_IO_EXCEPTION;
+                    }
+                };
+        logic = new LogicManager(model, new StorageManager(failingStorage,
+                new JsonUserPrefsStorage(temporaryFolder.resolve("preferences.json"))));
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        String warning = "\nWarning: " + String.format(LogicManager.FILE_OPS_ERROR_FORMAT,
+                DUMMY_IO_EXCEPTION.getMessage());
+
+        for (String commandText : List.of("listprojects", "listmembers pr/" + project.getName(),
+                "list", "help", "exit")) {
+            CommandResult expectedResult = new AddressBookParser().parseCommand(commandText).execute(expectedModel);
+            CommandResult actualResult = logic.execute(commandText);
+            assertEquals(new CommandResult(expectedResult.getFeedbackToUser() + warning,
+                    expectedResult.isShowHelp(), expectedResult.isExit(), expectedResult.getListViewTarget()),
+                    actualResult);
+            assertEquals(expectedModel, model);
+        }
+    }
+
+    @Test
     public void execute_storageThrowsAdException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_AD_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, DUMMY_AD_EXCEPTION.getMessage()));
