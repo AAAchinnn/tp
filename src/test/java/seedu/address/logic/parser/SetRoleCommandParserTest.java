@@ -13,8 +13,8 @@ import seedu.address.model.membership.Role;
 /** Tests parsing of {@code setrole} arguments. */
 public class SetRoleCommandParserTest {
 
-    private final SetRoleCommandParser parser = new SetRoleCommandParser();
     private static final String USAGE = String.format(MESSAGE_INVALID_COMMAND_FORMAT, SetRoleCommand.MESSAGE_USAGE);
+    private final SetRoleCommandParser parser = new SetRoleCommandParser();
 
     @Test
     public void parse_validArguments_returnsCommand() {
