@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DEADLINE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DESCRIPTION;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PROJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -41,7 +41,7 @@ public class EditProjectCommandParserTest {
         descriptor.setDescription(new Description("Build a contact manager"));
 
         assertParsedCommand(
-            " 1 pr/CS2103T Team Project d/2026-11-13"
+            " 1 n/CS2103T Team Project d/2026-11-13"
                 + " desc/Build a contact manager",
             descriptor);
     }
@@ -55,7 +55,7 @@ public class EditProjectCommandParserTest {
 
         assertParsedCommand(
             " \t1 \t desc/  Build a contact manager  "
-                + " d/ 2026-11-13  pr/  CS2103T   Team Project  ",
+                + " d/ 2026-11-13  n/  CS2103T   Team Project  ",
             descriptor);
     }
 
@@ -64,7 +64,7 @@ public class EditProjectCommandParserTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setName(new ProjectName("Updated Project"));
 
-        assertParsedCommand(" 1 pr/Updated Project", descriptor);
+        assertParsedCommand(" 1 n/Updated Project", descriptor);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class EditProjectCommandParserTest {
         EditProjectDescriptor descriptor = new EditProjectDescriptor();
         descriptor.setName(new ProjectName("Updated Project"));
 
-        assertParseSuccess(parser, " 2 pr/Updated Project",
+        assertParseSuccess(parser, " 2 n/Updated Project",
             new EditProjectCommand(Index.fromOneBased(2), descriptor));
     }
 
@@ -107,13 +107,13 @@ public class EditProjectCommandParserTest {
             MESSAGE_INVALID_COMMAND_FORMAT, EditProjectCommand.MESSAGE_USAGE);
         String[] invalidInputs = {
             "",
-            " pr/Updated Project",
-            " 0 pr/Updated Project",
-            " -1 pr/Updated Project",
-            " 1.5 pr/Updated Project",
-            " abc pr/Updated Project",
-            " 2147483648 pr/Updated Project",
-            " 1 extra pr/Updated Project"
+            " n/Updated Project",
+            " 0 n/Updated Project",
+            " -1 n/Updated Project",
+            " 1.5 n/Updated Project",
+            " abc n/Updated Project",
+            " 2147483648 n/Updated Project",
+            " 1 extra n/Updated Project"
         };
 
         for (String input : invalidInputs) {
@@ -130,11 +130,11 @@ public class EditProjectCommandParserTest {
     @Test
     public void parse_duplicatePrefixes_failure() {
         assertParseFailure(parser,
-            " 1 pr/First pr/Second",
-            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PROJECT));
+            " 1 n/First n/Second",
+            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME));
         assertParseFailure(parser,
-            " 1 pr/First pr/First",
-            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PROJECT));
+            " 1 n/First n/First",
+            Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME));
         assertParseFailure(parser,
             " 1 d/2027-01-01 d/2027-01-02",
             Messages.getErrorMessageForDuplicatePrefixes(PREFIX_DEADLINE));
@@ -145,7 +145,7 @@ public class EditProjectCommandParserTest {
 
     @Test
     public void parse_emptyNameOrDeadline_failure() {
-        assertParseFailure(parser, " 1 pr/", "PROJECT_NAME cannot be empty.");
+        assertParseFailure(parser, " 1 n/", "PROJECT_NAME cannot be empty.");
         assertParseFailure(parser, " 1 d/", "DEADLINE cannot be empty.");
     }
 
@@ -154,7 +154,7 @@ public class EditProjectCommandParserTest {
         String[] invalidNames = {"CS2103T@", "---", "a".repeat(51)};
 
         for (String name : invalidNames) {
-            assertParseFailure(parser, " 1 pr/" + name,
+            assertParseFailure(parser, " 1 n/" + name,
                 ProjectName.MESSAGE_CONSTRAINTS);
         }
     }
@@ -196,7 +196,7 @@ public class EditProjectCommandParserTest {
         descriptor.setName(new ProjectName(name));
         descriptor.setDescription(new Description(description));
 
-        assertParsedCommand(" 1 pr/" + name + " desc/" + description, descriptor);
+        assertParsedCommand(" 1 n/" + name + " desc/" + description, descriptor);
     }
 
     @Test
@@ -217,7 +217,7 @@ public class EditProjectCommandParserTest {
             assertParseFailure(parser,
                 " 1 desc/Description" + lineBreak, expectedMessage);
             assertParseFailure(parser,
-                " 1 pr/First" + lineBreak + "Second", expectedMessage);
+                " 1 n/First" + lineBreak + "Second", expectedMessage);
         }
     }
 
@@ -229,7 +229,7 @@ public class EditProjectCommandParserTest {
         assertEquals(
             new EditProjectCommand(Index.fromOneBased(1), descriptor),
             new AddressBookParser().parseCommand(
-                "editproject 1 pr/Updated Project"));
+                "editproject 1 n/Updated Project"));
     }
 
     /**

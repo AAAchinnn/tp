@@ -3,7 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DEADLINE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DESCRIPTION;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PROJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,11 +31,11 @@ public class EditProjectCommand extends Command {
         + "by the index number used in the displayed project list. "
         + "Existing values will be overwritten by the input values.\n"
         + "Parameters: INDEX (must be a positive integer) "
-        + "[" + PREFIX_PROJECT + "PROJECT_NAME] "
+        + "[" + PREFIX_NAME + "PROJECT_NAME] "
         + "[" + PREFIX_DEADLINE + "DEADLINE] "
         + "[" + PREFIX_DESCRIPTION + "DESCRIPTION] "
         + "Example: " + COMMAND_WORD + " 1 "
-        + PREFIX_PROJECT + "New Project Name "
+        + PREFIX_NAME + "New Project Name "
         + PREFIX_DEADLINE + "2027-01-01";
 
     public static final String MESSAGE_EDIT_PROJECT_SUCCESS = "Edited project: %1$s";

@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DEADLINE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DESCRIPTION;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PROJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.EditProjectCommand;
@@ -35,7 +35,7 @@ public class EditProjectCommandParser implements Parser<EditProjectCommand> {
         }
 
         ArgumentMultimap argMultimap =
-            ArgumentTokenizer.tokenize(args, PREFIX_PROJECT, PREFIX_DEADLINE, PREFIX_DESCRIPTION);
+            ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_DEADLINE, PREFIX_DESCRIPTION);
 
         Index index;
 
@@ -48,12 +48,12 @@ public class EditProjectCommandParser implements Parser<EditProjectCommand> {
             );
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_PROJECT, PREFIX_DEADLINE, PREFIX_DESCRIPTION);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_DEADLINE, PREFIX_DESCRIPTION);
 
         EditProjectCommand.EditProjectDescriptor editProjectDescriptor = new EditProjectCommand.EditProjectDescriptor();
 
-        if (argMultimap.getValue(PREFIX_PROJECT).isPresent()) {
-            editProjectDescriptor.setName(ParserUtil.parseProjectName(argMultimap.getValue(PREFIX_PROJECT).get()));
+        if (argMultimap.getValue(PREFIX_NAME).isPresent()) {
+            editProjectDescriptor.setName(ParserUtil.parseProjectName(argMultimap.getValue(PREFIX_NAME).get()));
         }
         if (argMultimap.getValue(PREFIX_DEADLINE).isPresent()) {
             editProjectDescriptor.setDeadline(ParserUtil.parseDeadline(argMultimap.getValue(PREFIX_DEADLINE).get()));
