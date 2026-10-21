@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'java'
     id 'checkstyle'
@@ -46,9 +48,32 @@ task coverage(type: JacocoReport) {
     }
 }
 
+configurations {
+    // Shared libraries, excluding the existing Windows/Linux/Intel Mac JavaFX.
+    macArmCommon {
+        canBeConsumed = false
+        canBeResolved = true
+        extendsFrom(project.configurations.implementation,
+                project.configurations.runtimeOnly)
+        exclude group: 'org.openjfx'
+    }
+
+    // ARM JavaFX modules are declared explicitly below.
+    macArmJavafx {
+        canBeConsumed = false
+        canBeResolved = true
+        transitive = false
+    }
+}
+
 dependencies {
     String jUnitVersion = '5.14.4'
     String javaFxVersion = '17.0.7'
+
+    ['base', 'controls', 'fxml', 'graphics'].each { module ->
+        add('macArmJavafx',
+                "org.openjfx:javafx-${module}:${javaFxVersion}:mac-aarch64")
+    }
 
     implementation "org.openjfx:javafx-base:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-base:${javaFxVersion}:mac"
@@ -74,6 +99,37 @@ dependencies {
 
 shadowJar {
     archiveFileName = 'uniteam.jar'
+}
+
+tasks.register('shadowJarMacArm',
+        ShadowJar) {
+    group = 'build'
+    description = 'Builds the Apple Silicon macOS release JAR.'
+    dependsOn tasks.named('classes')
+
+    archiveFileName = 'uniteam-mac-arm64.jar'
+    from sourceSets.main.output
+
+    configurations = [
+            project.configurations.macArmCommon,
+            project.configurations.macArmJavafx
+    ]
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Main-Class': 'seedu.address.Main'
+    }
+}
+
+// Prevent the ordinary thin JAR from overwriting a release JAR.
+tasks.named('jar') {
+    archiveClassifier = 'plain'
+}
+
+// Include both release JARs when running build.
+tasks.named('assemble') {
+    dependsOn tasks.named('shadowJar'), tasks.named('shadowJarMacArm')
 }
 
 run {
