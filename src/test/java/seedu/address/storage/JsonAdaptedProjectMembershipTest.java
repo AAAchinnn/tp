@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.membership.Role;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.project.ProjectId;
 
@@ -38,15 +39,26 @@ public class JsonAdaptedProjectMembershipTest {
     }
 
     @Test
+    public void jsonRoundTrip_membershipWithRole_preservesRole() throws Exception {
+        ProjectMembership membershipWithRole = MEMBERSHIP.withRole(new Role("Implement parser"));
+        String json = JsonUtil.toJsonString(new JsonAdaptedProjectMembership(membershipWithRole));
+        JsonAdaptedProjectMembership adaptedMembership = JsonUtil.fromJsonString(
+                json, JsonAdaptedProjectMembership.class);
+
+        assertEquals(membershipWithRole, adaptedMembership.toModelType());
+        assertEquals(new Role("Implement parser"), adaptedMembership.toModelType().getRole());
+    }
+
+    @Test
     public void toModelType_invalidPersonId_throwsIllegalValueException() {
-        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(INVALID_ID, VALID_PROJECT_ID);
+        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(INVALID_ID, VALID_PROJECT_ID, null);
 
         assertThrows(IllegalValueException.class, PersonId.MESSAGE_CONSTRAINTS, membership::toModelType);
     }
 
     @Test
     public void toModelType_nullPersonId_throwsIllegalValueException() {
-        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(null, VALID_PROJECT_ID);
+        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(null, VALID_PROJECT_ID, null);
         String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, PersonId.class.getSimpleName());
 
         assertThrows(IllegalValueException.class, expectedMessage, membership::toModelType);
@@ -54,14 +66,14 @@ public class JsonAdaptedProjectMembershipTest {
 
     @Test
     public void toModelType_invalidProjectId_throwsIllegalValueException() {
-        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(VALID_PERSON_ID, INVALID_ID);
+        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(VALID_PERSON_ID, INVALID_ID, null);
 
         assertThrows(IllegalValueException.class, ProjectId.MESSAGE_CONSTRAINTS, membership::toModelType);
     }
 
     @Test
     public void toModelType_nullProjectId_throwsIllegalValueException() {
-        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(VALID_PERSON_ID, null);
+        JsonAdaptedProjectMembership membership = new JsonAdaptedProjectMembership(VALID_PERSON_ID, null, null);
         String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, ProjectId.class.getSimpleName());
 
         assertThrows(IllegalValueException.class, expectedMessage, membership::toModelType);
