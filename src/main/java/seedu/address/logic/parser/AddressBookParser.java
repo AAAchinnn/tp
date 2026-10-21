@@ -16,6 +16,7 @@ import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.DissociateCommand;
 import seedu.address.logic.commands.EditCommand;
+import seedu.address.logic.commands.EditProjectCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
@@ -75,6 +76,7 @@ public class AddressBookParser {
             case AddProjectCommand.COMMAND_WORD -> new AddProjectCommandParser().parse(arguments);
             case AssociateCommand.COMMAND_WORD -> new AssociateCommandParser().parse(arguments);
             case DissociateCommand.COMMAND_WORD -> new DissociateCommandParser().parse(arguments);
+            case EditProjectCommand.COMMAND_WORD -> new EditProjectCommandParser().parse(arguments);
             default -> {
                 logger.finer("This user input caused a ParseException: " + userInput);
                 throw new ParseException(MESSAGE_UNKNOWN_COMMAND);
