@@ -15,6 +15,7 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
+import seedu.address.model.membership.Role;
 import seedu.address.model.project.Deadline;
 import seedu.address.model.project.Description;
 import seedu.address.model.project.ProjectName;
@@ -200,5 +201,18 @@ public class ParserUtil {
         }
 
         return new Description(trimmedDescription);
+    }
+
+    /** Parses a role description after trimming surrounding whitespace. */
+    public static Role parseRole(String role) throws ParseException {
+        requireNonNull(role);
+        if (!role.matches(Role.VALIDATION_REGEX)) {
+            throw new ParseException(Role.MESSAGE_CONSTRAINTS);
+        }
+        String trimmedRole = role.strip();
+        if (trimmedRole.isEmpty() || !Role.isValidRole(trimmedRole)) {
+            throw new ParseException(Role.MESSAGE_CONSTRAINTS);
+        }
+        return new Role(trimmedRole);
     }
 }
