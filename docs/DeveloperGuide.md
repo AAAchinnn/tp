@@ -240,6 +240,12 @@ The `listmembers` command resolves a project name to its `Project`, then asks th
 `AddressBook#getProjectMembers` matches membership IDs and returns contacts in address-book order; command logic does
 not inspect or mutate the membership collection directly.
 
+The `listprojects` command optionally accepts `c/CONTACT_INDEX`. Its parser creates a command with or without a contact
+index. When an index is supplied, the command resolves it against `Model#getFilteredPersonList`, then calls
+`Model#getPersonProjects`. `ModelManager` delegates to `AddressBook#getPersonProjects`, which validates the contact's
+ID and matches membership ID pairs to return projects in address-book order. The command formats each result with its
+original index from the full project list. It changes neither the model nor the displayed lists or contact filter.
+
 #### Design considerations
 
 **Aspect: Where to store project memberships:**
@@ -693,6 +699,47 @@ testers are expected to do more *exploratory* testing.
 
 1. Add projects with and without descriptions using `addproject`, then run `listprojects`.<br>
    Expected: Projects are shown in insertion order with their displayed number, deadline, and description.
+
+### Listing a contact's projects
+
+1. Set up a disposable copy of the app in a separate folder. Run `clear` in that copy, then execute:
+
+   ```text
+   add n/Alex Querytest p/81234567 e/alex@example.com a/Block 1
+   add n/Blair Querytest p/82345678 e/blair@example.com a/Block 2
+   addproject n/Unrelated project d/2026-11-13
+   addproject n/Alpha project d/2026-11-14 desc/First associated project
+   addproject n/Beta project d/2026-11-15
+   associate c/1 pr/1
+   associate c/2 pr/3
+   associate c/2 pr/2
+   ```
+
+1. Run `listprojects`, then `listprojects c/2`.<br>
+   Expected: The first command lists all three projects. The second identifies Blair Querytest and lists Alpha as 2
+   and Beta as 3, despite their reverse association order. Both results include deadlines and descriptions, with
+   `No description provided` for Beta. The Contacts and Projects tabs retain all entries in their original order.
+
+1. Run `find Blair`, then `listprojects c/1`.<br>
+   Expected: The result still identifies Blair and lists projects 2 and 3. The contact search remains active.
+   Run `listprojects c/2`; it reports an invalid displayed contact index because only one contact is displayed.
+
+1. Try `listprojects c/`, `listprojects c/0`, `listprojects c/-1`, `listprojects c/abc`,
+   `listprojects c/2147483648`, `listprojects c/1 c/2`, `listprojects pr/2`, and `listprojects c/1 extra`.<br>
+   Expected: Each command reports an error. Run `listprojects c/1` again to confirm the same two associations remain
+   and the contact search is still active.
+
+1. Run `dissociate c/1 pr/2`, then `listprojects c/1`.<br>
+   Expected: Only Beta is listed, still numbered 3. This confirms that a result's project number can be used directly
+   for dissociation. Alpha remains in the Projects tab.
+
+1. Close and restart the disposable app from the same folder, run `list`, then `listprojects c/2`.<br>
+   Expected: Blair still belongs only to Beta, numbered 3. All contact and project details and IDs are retained in
+   `data/addressbook.json`, and the unrelated association between Alex and project 1 is retained.
+
+1. Run `dissociate c/2 pr/3`, then `listprojects c/2`.<br>
+   Expected: The result reports that no projects are associated with Blair. The contact and all three projects remain.
+   Run `associate c/2 pr/2`, then `listprojects c/2`; Alpha is listed again as project 2.
 
 ### Associating a contact with a project
 

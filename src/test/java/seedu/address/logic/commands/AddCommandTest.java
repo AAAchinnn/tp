@@ -232,6 +232,11 @@ public class AddCommandTest {
         }
 
         @Override
+        public List<Project> getPersonProjects(Person person) {
+            throw new AssertionError("This method should not be called.");
+        }
+
+        @Override
         public boolean hasProjectMembership(ProjectMembership membership) {
             throw new AssertionError("This method should not be called.");
         }

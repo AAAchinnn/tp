@@ -65,7 +65,7 @@ contacts faster than traditional GUI applications.
 * Parameters can be in any order.<br>
   For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
 
-* Commands that take no parameters (`help`, `list`, `listprojects`, `exit`, and `clear`) reject extra arguments.<br>
+* Commands that take no parameters (`help`, `list`, `exit`, and `clear`) reject extra arguments.<br>
   For example, `help 123` reports an invalid command format and shows the usage for `help`.
   Leading and trailing whitespace is allowed.
 
@@ -120,13 +120,27 @@ Shows a list of all contacts in UniTeam.
 
 Format: `list`
 
-### Listing all projects: `listprojects`
+### Listing projects: `listprojects`
 
 Lists projects in the order they were added, including each project's deadline and description.
 
-Format: `listprojects`
+Format: `listprojects [c/CONTACT_INDEX]`
 
-If no projects exist, UniTeam reports that there are no projects to list.
+* Without `c/`, lists all projects. If no projects exist, UniTeam reports that there are no projects to list.
+* With `c/`, lists only projects associated with the selected contact and identifies the contact in the result.
+  `CONTACT_INDEX` must be a positive integer referring to the currently displayed Contacts list, including after `find`.
+* Project numbers retain their original indices from the full Projects list. For example, if the contact belongs to
+  projects 2 and 5, the results are numbered 2 and 5. These numbers remain valid for `associate` and `dissociate`.
+* A contact with no associated projects produces an informational message.
+* Missing or invalid contact indices, out-of-range indices, duplicate `c/` prefixes, and unsupported arguments are rejected.
+* Results appear in the command feedback area. The Contacts and Projects tabs and the current contact filter remain
+  unchanged. Contacts, projects, and their associations are also unchanged.
+
+Examples:
+
+* `listprojects` lists all projects.
+* `listprojects c/2` lists projects associated with the second currently displayed contact.
+* `find Alex` followed by `listprojects c/1` lists projects for the first contact in the search results.
 
 ### Editing a contact: `edit`
 
@@ -315,6 +329,6 @@ Action     | Format, Examples
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
-**List projects** | `listprojects`
+**List projects** | `listprojects [c/CONTACT_INDEX]`<br> e.g., `listprojects c/2`
 **List members** | `listmembers pr/PROJECT_NAME`<br> e.g., `listmembers pr/CS2103T Team Project`
 **Help**   | `help`

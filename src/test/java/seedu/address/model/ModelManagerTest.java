@@ -160,6 +160,35 @@ public class ModelManagerTest {
     }
 
     @Test
+    public void getPersonProjects_hiddenContact_returnsProjectsWithoutChangingFilter() {
+        Project project = createProject("CS2103T");
+        modelManager.addPerson(ALICE);
+        modelManager.addPerson(BENSON);
+        modelManager.addProject(project);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        modelManager.addProjectMembership(membership);
+        modelManager.updateFilteredPersonList(person -> person.getPersonId().equals(BENSON.getPersonId()));
+        AddressBook original = new AddressBook(modelManager.getAddressBook());
+
+        assertEquals(List.of(project), modelManager.getPersonProjects(ALICE));
+        assertEquals(original, modelManager.getAddressBook());
+        assertEquals(List.of(BENSON), modelManager.getFilteredPersonList());
+
+        modelManager.removeProjectMembership(membership);
+        assertTrue(modelManager.getPersonProjects(ALICE).isEmpty());
+    }
+
+    @Test
+    public void getPersonProjects_unknownPerson_throwsPersonNotFoundException() {
+        assertThrows(PersonNotFoundException.class, () -> modelManager.getPersonProjects(ALICE));
+    }
+
+    @Test
+    public void getPersonProjects_nullPerson_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> modelManager.getPersonProjects(null));
+    }
+
+    @Test
     public void constructor_withProjects_preservesProjects() {
         AddressBook addressBook = new AddressBook();
         Project project = createProject("CS2103T");

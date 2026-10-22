@@ -116,6 +116,12 @@ public interface Model {
     List<Person> getProjectMembers(Project project);
 
     /**
+     * Returns projects associated with {@code person}, preserving address-book order.
+     * The person's ID must exist in the address book.
+     */
+    List<Project> getPersonProjects(Person person);
+
+    /**
      * Returns true if {@code membership} exists in the address book.
      */
     boolean hasProjectMembership(ProjectMembership membership);
