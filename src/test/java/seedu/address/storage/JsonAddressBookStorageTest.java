@@ -32,6 +32,7 @@ import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.project.Project;
+import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.ProjectBuilder;
 
 public class JsonAddressBookStorageTest {
@@ -96,13 +97,44 @@ public class JsonAddressBookStorageTest {
     }
 
     @Test
-    public void readAddressBook_duplicateNames_throwDataLoadingException() {
+    public void readAddressBook_duplicateContactDetails_throwDataLoadingException() {
         Path filePath = SERIALIZABLE_TEST_DATA_FOLDER.resolve("duplicatePersonAddressBook.json");
         JsonAddressBookStorage jsonAddressBookStorage = new JsonAddressBookStorage(filePath);
 
         assertThrows(DataLoadingException.class,
                 IllegalValueException.class.getName() + ": " + JsonSerializableAddressBook.MESSAGE_DUPLICATE_PERSON,
                 jsonAddressBookStorage::readAddressBook);
+    }
+
+    @Test
+    public void readAndSaveAddressBook_sameNameContacts_preservesIdsAndMemberships() throws Exception {
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withPhone("91234567").build();
+        AddressBook original = new AddressBook();
+        original.addPerson(ALICE);
+        original.addPerson(otherAlice);
+        Project project = new ProjectBuilder().build();
+        Project otherProject = new ProjectBuilder().withName("Other project").build();
+        original.addProject(project);
+        original.addProject(otherProject);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), project.getProjectId());
+        ProjectMembership otherMembership = new ProjectMembership(otherAlice.getPersonId(),
+                otherProject.getProjectId());
+        original.addProjectMembership(membership);
+        original.addProjectMembership(otherMembership);
+        Path filePath = testFolder.resolve("SameNameContacts.json");
+
+        new JsonAddressBookStorage(filePath).saveAddressBook(original);
+        AddressBook restored = new AddressBook(new JsonAddressBookStorage(filePath).readAddressBook().orElseThrow());
+
+        assertEquals(original, restored);
+        assertEquals(List.of(ALICE.getPersonId(), otherAlice.getPersonId()),
+                restored.getPersonList().stream().map(Person::getPersonId).toList());
+        assertEquals(List.of(project.getProjectId(), otherProject.getProjectId()),
+                restored.getProjectList().stream().map(Project::getProjectId).toList());
+        assertEquals(List.of(membership, otherMembership), restored.getProjectMembershipList());
+        assertEquals(List.of(ALICE), restored.getProjectMembers(restored.getProjectList().get(0)));
+        assertEquals(List.of(otherAlice), restored.getProjectMembers(restored.getProjectList().get(1)));
     }
 
     @Test

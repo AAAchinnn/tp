@@ -65,7 +65,7 @@ contacts faster than traditional GUI applications.
 * Parameters can be in any order.<br>
   For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
 
-* Commands that take no parameters (`help`, `list`, `listprojects`, `exit`, and `clear`) reject extra arguments.<br>
+* Commands that take no parameters (`help`, `list`, `exit`, and `clear`) reject extra arguments.<br>
   For example, `help 123` reports an invalid command format and shows the usage for `help`.
   Leading and trailing whitespace is allowed.
 
@@ -87,6 +87,10 @@ Adds a contact to UniTeam.
 
 Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... `
 
+Contacts can share a name. A contact is rejected as a duplicate only when its name, phone number, email, address,
+and tags all match an existing contact, including contacts hidden by the current filter. Tag order does not matter.
+A difference in any of these fields allows a separate contact, even if only the address or tags differ.
+
 <box type="tip" seamless>
 
 **Tip:** A contact can have any number of tags, including zero.
@@ -95,6 +99,13 @@ Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... `
 Examples:
 * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01`
 * `add n/Betsy Crowe t/friend e/betsycrowe@example.com a/Newgate Prison p/1234567 t/criminal`
+
+For example, both of these commands succeed because the contacts have different phone numbers:
+
+* `add n/Alex Tan p/91234567 e/alex@example.com a/Block 1`
+* `add n/Alex Tan p/98765432 e/alex@example.com a/Block 1`
+
+Repeating either command is rejected with `This contact already exists in UniTeam.`
 
 ### Adding a project: `addproject`
 
@@ -109,13 +120,27 @@ Shows a list of all contacts in UniTeam.
 
 Format: `list`
 
-### Listing all projects: `listprojects`
+### Listing projects: `listprojects`
 
 Lists projects in the order they were added, including each project's deadline and description.
 
-Format: `listprojects`
+Format: `listprojects [c/CONTACT_INDEX]`
 
-If no projects exist, UniTeam reports that there are no projects to list.
+* Without `c/`, lists all projects. If no projects exist, UniTeam reports that there are no projects to list.
+* With `c/`, lists only projects associated with the selected contact and identifies the contact in the result.
+  `CONTACT_INDEX` must be a positive integer referring to the currently displayed Contacts list, including after `find`.
+* Project numbers retain their original indices from the full Projects list. For example, if the contact belongs to
+  projects 2 and 5, the results are numbered 2 and 5. These numbers remain valid for `associate` and `dissociate`.
+* A contact with no associated projects produces an informational message.
+* Missing or invalid contact indices, out-of-range indices, duplicate `c/` prefixes, and unsupported arguments are rejected.
+* Results appear in the command feedback area. The Contacts and Projects tabs and the current contact filter remain
+  unchanged. Contacts, projects, and their associations are also unchanged.
+
+Examples:
+
+* `listprojects` lists all projects.
+* `listprojects c/2` lists projects associated with the second currently displayed contact.
+* `find Alex` followed by `listprojects c/1` lists projects for the first contact in the search results.
 
 ### Editing a contact: `edit`
 
@@ -129,6 +154,11 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [t/TAG]... `
 * Existing values will be updated to the input values.
 * When editing tags, all of the contact's existing tags are removed; adding tags is not cumulative.
 * To remove all of a contact's tags, enter `t/` without a tag after it.
+* A contact can be renamed to share another contact's name, provided their complete details differ.
+  An edit that makes all five fields match another contact is rejected with
+  `This contact already exists in UniTeam.`, including when the other contact is hidden by a filter.
+  The rejected edit leaves the contacts unchanged.
+* Providing an existing field value without changing the contact's details is allowed.
 
 Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st contact to be 
@@ -230,9 +260,15 @@ Example:
 
 1. Create a project with `addproject n/CS2103T Team Project d/2026-11-13`.
 2. Associate a contact with it, for example `associate c/1 pr/1`.
-3. Run `listmembers pr/CS2103T Team Project` to see the associated contact names.
+3. Run `listmembers pr/CS2103T Team Project` to see the associated contacts as cards in the Contacts tab.
 
-If the project exists but has no associated contacts, UniTeam reports that no contacts are associated with it.
+UniTeam automatically opens the Contacts tab and shows only members of the named project, including their phone,
+email, address and tags. Index-based commands use the numbers on these displayed cards.
+Use `list` to restore all contacts, or `find KEYWORD` to replace the member filter with a name search.
+Use `listprojects` to switch to the Projects tab.
+
+If the project exists but has no associated contacts, UniTeam reports that no contacts are associated with it
+and displays an empty contact list.
 If no project has the specified name, UniTeam reports that the project does not exist. Project names are matched
 without regard to letter case and with whitespace normalised.
 
@@ -316,7 +352,7 @@ Action     | Format, Examples
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List**   | `list`
-**List projects** | `listprojects`
+**List projects** | `listprojects [c/CONTACT_INDEX]`<br> e.g., `listprojects c/2`
 **List members** | `listmembers pr/PROJECT_NAME`<br> e.g., `listmembers pr/CS2103T Team Project`
 
 **Set member role** | `setrole c/CONTACT_INDEX pr/PROJECT_INDEX r/ROLE`<br> e.g., `setrole c/2 pr/1 r/Implement the parser`

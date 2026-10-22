@@ -209,6 +209,27 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
+     * Returns the projects associated with {@code person}, preserving address-book order.
+     *
+     * @throws PersonNotFoundException if the person's ID is not in this address book.
+     */
+    public List<Project> getPersonProjects(Person person) {
+        requireNonNull(person);
+        if (!hasPersonId(person.getPersonId())) {
+            throw new PersonNotFoundException();
+        }
+
+        Set<ProjectId> projectIds = memberships.asUnmodifiableObservableList().stream()
+                .filter(membership -> membership.getPersonId().equals(person.getPersonId()))
+                .map(ProjectMembership::getProjectId)
+                .collect(Collectors.toSet());
+
+        return projects.asUnmodifiableObservableList().stream()
+                .filter(project -> projectIds.contains(project.getProjectId()))
+                .toList();
+    }
+
+    /**
      * Removes {@code membership} from the address book.
      * The membership must exist in the address book.
      */

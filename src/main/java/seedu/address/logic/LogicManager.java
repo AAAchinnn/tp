@@ -59,7 +59,7 @@ public class LogicManager implements Logic {
                             + "\nSaving is disabled because the data file could not be loaded."
                             + " Changes in this session will be lost.",
                     commandResult.isShowHelp(),
-                    commandResult.isExit());
+                    commandResult.isExit(), commandResult.getListViewTarget());
         }
 
         try {
@@ -72,7 +72,7 @@ public class LogicManager implements Logic {
 
             if (beforeCommand.equals(model.getAddressBook())) {
                 return new CommandResult(commandResult.getFeedbackToUser() + "\nWarning: " + errorMessage,
-                        commandResult.isShowHelp(), commandResult.isExit());
+                        commandResult.isShowHelp(), commandResult.isExit(), commandResult.getListViewTarget());
             }
 
             model.setAddressBook(beforeCommand);

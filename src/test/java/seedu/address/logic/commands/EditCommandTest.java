@@ -40,6 +40,56 @@ public class EditCommandTest {
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
+    public void execute_changeNameToExistingName_success() {
+        Person firstPerson = model.getFilteredPersonList().get(0);
+        Person secondPerson = model.getFilteredPersonList().get(1);
+        Person editedPerson = new PersonBuilder(secondPerson).withName(firstPerson.getName().fullName).build();
+        EditCommand command = new EditCommand(INDEX_SECOND_PERSON,
+                new EditPersonDescriptorBuilder().withName(firstPerson.getName().fullName).build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(secondPerson, editedPerson);
+
+        assertCommandSuccess(command, model,
+                String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)), expectedModel);
+        assertEquals(secondPerson.getPersonId(), model.getAddressBook().getPersonList().get(1).getPersonId());
+    }
+
+    @Test
+    public void execute_sameNameBecomesExactDuplicate_failure() {
+        Person firstPerson = model.getFilteredPersonList().get(0);
+        Person otherPerson = new PersonBuilder(firstPerson).withPersonId(PersonId.generate())
+                .withPhone("91234567").build();
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(firstPerson);
+        addressBook.addPerson(otherPerson);
+        model = new ModelManager(addressBook, new UserPrefs());
+        EditCommand command = new EditCommand(INDEX_SECOND_PERSON,
+                new EditPersonDescriptorBuilder().withPhone(firstPerson.getPhone().value).build());
+
+        assertCommandFailure(command, model, EditCommand.MESSAGE_DUPLICATE_PERSON);
+        assertEquals(List.of(firstPerson.getPersonId(), otherPerson.getPersonId()),
+                model.getAddressBook().getPersonList().stream().map(Person::getPersonId).toList());
+    }
+
+    @Test
+    public void execute_sameNameContactWithUnchangedField_success() {
+        Person firstPerson = model.getFilteredPersonList().get(0);
+        Person otherPerson = new PersonBuilder(firstPerson).withPersonId(PersonId.generate())
+                .withPhone("91234567").build();
+        AddressBook addressBook = new AddressBook();
+        addressBook.addPerson(firstPerson);
+        addressBook.addPerson(otherPerson);
+        model = new ModelManager(addressBook, new UserPrefs());
+        Model expectedModel = new ModelManager(new AddressBook(addressBook), new UserPrefs());
+        EditCommand command = new EditCommand(INDEX_SECOND_PERSON,
+                new EditPersonDescriptorBuilder().withPhone(otherPerson.getPhone().value).build());
+
+        assertCommandSuccess(command, model,
+                String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(otherPerson)), expectedModel);
+        assertEquals(otherPerson.getPersonId(), model.getAddressBook().getPersonList().get(1).getPersonId());
+    }
+
+    @Test
     public void execute_allFieldsSpecifiedUnfilteredList_success() {
         Person personToEdit = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new PersonBuilder().withPersonId(personToEdit.getPersonId()).build();

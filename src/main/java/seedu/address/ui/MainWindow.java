@@ -6,6 +6,8 @@ import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -56,6 +58,15 @@ public class MainWindow extends UiPart<Stage> {
 
     @FXML
     private StackPane statusbarPlaceholder;
+
+    @FXML
+    private TabPane listTabs;
+
+    @FXML
+    private Tab contactsTab;
+
+    @FXML
+    private Tab projectsTab;
 
     /**
      * Creates a {@code MainWindow} with the given stage, logic, data file path, and session saving restriction.
@@ -189,6 +200,12 @@ public class MainWindow extends UiPart<Stage> {
             CommandResult commandResult = logic.execute(commandText);
             logger.info("Result: " + commandResult.getFeedbackToUser());
             resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
+
+            switch (commandResult.getListViewTarget()) {
+                case CONTACTS -> listTabs.getSelectionModel().select(contactsTab);
+                case PROJECTS -> listTabs.getSelectionModel().select(projectsTab);
+                default -> { }
+            }
 
             if (commandResult.isShowHelp()) {
                 handleHelp();

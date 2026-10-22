@@ -19,6 +19,7 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.project.Project;
 import seedu.address.model.project.ProjectId;
+import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.ProjectBuilder;
 import seedu.address.testutil.TypicalPersons;
 
@@ -71,6 +72,21 @@ public class JsonSerializableAddressBookTest {
                 JsonSerializableAddressBook.class).get();
         assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_PERSON,
                 dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_sameNameWithDifferentDetails_success() throws Exception {
+        Person firstPerson = TypicalPersons.ALICE;
+        Person otherPerson = new PersonBuilder(firstPerson).withPersonId(PersonId.generate())
+                .withPhone("91234567").build();
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(
+                new JsonAdaptedPerson(firstPerson), new JsonAdaptedPerson(otherPerson)), List.of(), List.of());
+
+        AddressBook restored = data.toModelType();
+
+        assertEquals(List.of(firstPerson, otherPerson), restored.getPersonList());
+        assertEquals(List.of(firstPerson.getPersonId(), otherPerson.getPersonId()),
+                restored.getPersonList().stream().map(Person::getPersonId).toList());
     }
 
     @Test

@@ -6,6 +6,8 @@ import java.util.stream.Stream;
 
 import seedu.address.logic.parser.Prefix;
 import seedu.address.model.person.Person;
+import seedu.address.model.project.Description;
+import seedu.address.model.project.Project;
 
 /**
  * Container for user visible messages.
@@ -49,4 +51,21 @@ public class Messages {
         return builder.toString();
     }
 
+    /**
+     * Formats the {@code project} for display to the user.
+     */
+    public static String format(Project project) {
+        final StringBuilder builder = new StringBuilder();
+        String description =
+                project.getDescription().equals(Description.EMPTY)
+                        ? "No description provided"
+                        : project.getDescription().toString();
+        builder.append(project.getName())
+                .append("; Deadline: ")
+                .append(project.getDeadline())
+                .append("; Description: ")
+                .append(description);
+
+        return builder.toString();
+    }
 }

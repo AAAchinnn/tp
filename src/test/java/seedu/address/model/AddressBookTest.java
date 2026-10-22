@@ -61,9 +61,8 @@ public class AddressBookTest {
 
     @Test
     public void resetData_withDuplicatePersons_throwsDuplicatePersonException() {
-        // Two persons with the same identity fields
-        Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
-                .build();
+        // Matching contact details must be rejected even when identifiers differ.
+        Person editedAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
         List<Person> newPersons = List.of(ALICE, editedAlice);
         AddressBookStub newData = new AddressBookStub(newPersons, List.of());
 
@@ -87,11 +86,48 @@ public class AddressBookTest {
     }
 
     @Test
-    public void hasPerson_personWithSameIdentityFieldsInAddressBook_returnsTrue() {
+    public void hasPerson_sameNameWithDifferentDetails_returnsFalse() {
         addressBook.addPerson(ALICE);
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
                 .build();
-        assertTrue(addressBook.hasPerson(editedAlice));
+        assertFalse(addressBook.hasPerson(editedAlice));
+    }
+
+    @Test
+    public void setPerson_sameNameContacts_preservesIdsAndMemberships() {
+        Project project = createProject("CS2103T");
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+        ProjectMembership aliceMembership = addMembership(addressBook, ALICE, project);
+        addressBook.addPerson(otherAlice);
+        ProjectMembership otherMembership = new ProjectMembership(otherAlice.getPersonId(), project.getProjectId());
+        addressBook.addProjectMembership(otherMembership);
+        Person editedAlice = new PersonBuilder(ALICE).withTags(VALID_TAG_HUSBAND).build();
+
+        addressBook.setPerson(ALICE, editedAlice);
+
+        assertEquals(List.of(editedAlice, otherAlice), addressBook.getPersonList());
+        assertEquals(List.of(ALICE.getPersonId(), otherAlice.getPersonId()),
+                addressBook.getPersonList().stream().map(Person::getPersonId).toList());
+        assertEquals(List.of(aliceMembership, otherMembership), addressBook.getProjectMembershipList());
+        assertEquals(List.of(editedAlice, otherAlice), addressBook.getProjectMembers(project));
+    }
+
+    @Test
+    public void removePerson_sameNameContacts_removesOnlySelectedContactAndMemberships() {
+        Project project = createProject("CS2103T");
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+        addMembership(addressBook, ALICE, project);
+        addressBook.addPerson(otherAlice);
+        ProjectMembership otherMembership = new ProjectMembership(otherAlice.getPersonId(), project.getProjectId());
+        addressBook.addProjectMembership(otherMembership);
+
+        addressBook.removePerson(ALICE);
+
+        assertEquals(List.of(otherAlice), addressBook.getPersonList());
+        assertEquals(List.of(otherMembership), addressBook.getProjectMembershipList());
+        assertEquals(List.of(otherAlice), addressBook.getProjectMembers(project));
     }
 
     @Test
@@ -291,6 +327,81 @@ public class AddressBookTest {
     @Test
     public void getProjectMembers_nullProject_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> addressBook.getProjectMembers(null));
+    }
+
+    @Test
+    public void getPersonProjects_memberships_returnsProjectsInAddressBookOrder() {
+        Project first = createProject("CS2103T");
+        Project second = createProject("Orbital");
+        Project unrelated = createProject("Other project");
+        addressBook.addPerson(ALICE);
+        addressBook.addPerson(BOB);
+        addressBook.addProject(first);
+        addressBook.addProject(second);
+        addressBook.addProject(unrelated);
+        addressBook.addProjectMembership(new ProjectMembership(ALICE.getPersonId(), second.getProjectId()));
+        addressBook.addProjectMembership(new ProjectMembership(BOB.getPersonId(), unrelated.getProjectId()));
+        addressBook.addProjectMembership(new ProjectMembership(ALICE.getPersonId(), first.getProjectId()));
+        AddressBook original = new AddressBook(addressBook);
+
+        assertEquals(List.of(first, second), addressBook.getPersonProjects(ALICE));
+        assertEquals(original, addressBook);
+    }
+
+    @Test
+    public void getPersonProjects_noMemberships_returnsEmptyList() {
+        Project project = createProject("CS2103T");
+        addMembership(addressBook, BOB, project);
+        addressBook.addPerson(ALICE);
+
+        assertTrue(addressBook.getPersonProjects(ALICE).isEmpty());
+    }
+
+    @Test
+    public void getPersonProjects_sameNameContacts_usesPersonId() {
+        Project project = createProject("CS2103T");
+        Project otherProject = createProject("Orbital");
+        Person otherAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate())
+                .withAddress(VALID_ADDRESS_BOB).build();
+        addMembership(addressBook, ALICE, project);
+        addressBook.addPerson(otherAlice);
+        addressBook.addProject(otherProject);
+        addressBook.addProjectMembership(new ProjectMembership(otherAlice.getPersonId(), otherProject.getProjectId()));
+
+        assertEquals(List.of(project), addressBook.getPersonProjects(ALICE));
+        assertEquals(List.of(otherProject), addressBook.getPersonProjects(otherAlice));
+    }
+
+    @Test
+    public void getPersonProjects_editedContactAndProject_returnsCurrentProject() {
+        Project project = createProject("CS2103T");
+        addMembership(addressBook, ALICE, project);
+        Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).build();
+        Project editedProject = new ProjectBuilder(project).withName("Renamed project").build();
+        addressBook.setPerson(ALICE, editedAlice);
+        addressBook.setProject(project, editedProject);
+
+        assertEquals(List.of(editedProject), addressBook.getPersonProjects(editedAlice));
+        assertEquals(List.of(editedProject), addressBook.getPersonProjects(ALICE));
+    }
+
+    @Test
+    public void getPersonProjects_sameDetailsWithUnknownId_throwsPersonNotFoundException() {
+        Project project = createProject("CS2103T");
+        addMembership(addressBook, ALICE, project);
+        Person unknownAlice = new PersonBuilder(ALICE).withPersonId(PersonId.generate()).build();
+
+        assertThrows(PersonNotFoundException.class, () -> addressBook.getPersonProjects(unknownAlice));
+    }
+
+    @Test
+    public void getPersonProjects_unknownPerson_throwsPersonNotFoundException() {
+        assertThrows(PersonNotFoundException.class, () -> addressBook.getPersonProjects(ALICE));
+    }
+
+    @Test
+    public void getPersonProjects_nullPerson_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> addressBook.getPersonProjects(null));
     }
 
     @Test

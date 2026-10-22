@@ -141,7 +141,15 @@ The `Model` component,
 
 Each `Person` owns exactly one `PersonId`, shown by the composition in the Model diagrams. The normal `Person` constructor generates a new ID, while the reconstruction constructor accepts an existing ID. Editing replaces the person's details but preserves its ID.
 
-IDs provide stable internal references and are separate from contact duplicate detection. `Person#isSamePerson` remains name-based, and `UniquePersonList` still uses it to reject duplicate contacts. `Person#equals` and `Person#hashCode` continue to compare the existing contact fields without including the ID; otherwise equal contacts with different IDs remain equal.
+IDs provide stable internal references and are separate from contact duplicate detection. `Person#isSamePerson`
+delegates to `Person#equals`, comparing name, phone, email, address, and tags without including `PersonId`.
+Tags are compared as a set, so their order does not matter. `Person#hashCode` uses the same five fields.
+Contacts with matching details remain duplicates even when their IDs differ; contacts sharing a name are allowed
+when any other field differs. `UniquePersonList` separately enforces unique IDs.
+
+`AddCommand` and `EditCommand` use `Model#hasPerson`, which checks the complete address book rather than the filtered
+contact list. `UniquePersonList` enforces the same duplicate rule for additions, replacements, and bulk updates.
+An unchanged edit is allowed; a changed contact must not match another contact's complete details.
 
 A `ProjectMembership` represents the association between one contact and one project. It stores the contact's
 `PersonId`, the project's `ProjectId`, and an immutable `Role` describing that contact's task allotment for the project;
@@ -190,7 +198,12 @@ The `Storage` component,
 
 `JsonAdaptedPerson` saves each contact's `PersonId` as an `id` string in the address book JSON file and restores it when loading. A missing or null `id` is supported for legacy data and generates a new ID, which is persisted on the next save. A present ID must use the standard UUID format, with either uppercase or lowercase hexadecimal digits. Malformed IDs cause an `IllegalValueException`, which `JsonAddressBookStorage` reports as a `DataLoadingException`.
 
-`JsonSerializableAddressBook#toModelType()` also tracks restored IDs in a `Set<PersonId>` and rejects duplicate IDs with a dedicated error message. UUIDs that differ only in capitalization represent the same ID. The existing name-based duplicate-person check runs first, and a contact is added only after both checks pass. Duplicate IDs are reported as invalid data through the same storage-loading exception path as malformed IDs.
+`JsonSerializableAddressBook#toModelType()` also tracks restored IDs in a `Set<PersonId>` and rejects duplicate IDs
+with a dedicated error message. UUIDs that differ only in capitalization represent the same ID. The duplicate-person
+check runs first and compares all five contact fields through `AddressBook#hasPerson`; a contact is added only after
+both checks pass. Same-name contacts with different details and distinct IDs can therefore be saved and loaded
+together. Duplicate IDs are reported as invalid data through the same storage-loading exception path as malformed
+IDs. The JSON format is unchanged, and memberships continue to reference contacts by their IDs.
 
 #### Legacy migration
 
@@ -232,6 +245,12 @@ The `listmembers` command resolves a project name to its `Project`, then asks th
 the corresponding membership roles to display them beside contact names. `SetRoleCommand` resolves the selected
 contact and project, confirms their membership exists, then replaces that membership with a value carrying the new
 role. The membership identity remains the same because equality is based on the person and project IDs.
+
+The `listprojects` command optionally accepts `c/CONTACT_INDEX`. Its parser creates a command with or without a contact
+index. When an index is supplied, the command resolves it against `Model#getFilteredPersonList`, then calls
+`Model#getPersonProjects`. `ModelManager` delegates to `AddressBook#getPersonProjects`, which validates the contact's
+ID and matches membership ID pairs to return projects in address-book order. The command formats each result with its
+original index from the full project list. It changes neither the model nor the displayed lists or contact filter.
 
 #### Design considerations
 
@@ -611,6 +630,57 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
+### Contacts with the same name
+
+1. Adding same-name contacts and rejecting exact duplicates
+
+   1. Prerequisites: Use a disposable copy of the app and data file. Execute `clear` to start with an empty address
+      book; this removes the disposable copy's existing contacts, projects, and memberships.
+
+   1. Execute `add n/Alex Tan p/91234567 e/alex@example.com a/Block 1 t/friend t/classmate`, then
+      `add n/Alex Tan p/98765432 e/alex@example.com a/Block 1 t/classmate t/friend`.<br>
+      Expected: Both commands succeed. The Contacts tab shows two contacts named Alex Tan with different phone
+      numbers. Their saved JSON entries have distinct `id` values.
+
+   1. Repeat the first command with the tags in reverse order.<br>
+      Expected: `This contact already exists in UniTeam.` No contact is added; tag order does not distinguish contacts.
+
+   1. Execute `find Nobody`, then repeat the first `add` command.<br>
+      Expected: The filtered list is empty, but the addition is still rejected as a duplicate. Execute `list` and
+      confirm that both original contacts remain with their details and IDs unchanged.
+
+1. Editing same-name contacts
+
+   1. Prerequisites: Continue from the preceding test with both contacts displayed in their original order.
+
+   1. Execute `edit 2 n/Alex Tan`.<br>
+      Expected: The edit succeeds although the supplied name is unchanged.
+
+   1. Execute `edit 2 p/91234567`.<br>
+      Expected: `This contact already exists in UniTeam.` The second contact still has phone number `98765432`.
+
+   1. Execute `edit 2 n/Jamie Tan`, then `find Jamie`, then `edit 1 p/91234567 n/Alex Tan`.<br>
+      Expected: The first two commands succeed. The final edit is rejected because it would match the hidden Alex
+      Tan contact's complete details. Execute `list` and confirm that Jamie Tan's details and both IDs are unchanged.
+
+   1. Execute `edit 2 n/Alex Tan a/Block 2`.<br>
+      Expected: The edit succeeds. Both contacts share a name, retain their IDs, and have different details.
+
+1. Saving same-name contacts and independent memberships
+
+   1. Prerequisites: Continue from the editing test with both contacts displayed. Execute
+      `addproject n/First project d/2027-01-01` and `addproject n/Second project d/2027-01-02`.
+
+   1. Execute `associate c/1 pr/1` and `associate c/2 pr/2`, then record the contact IDs and membership ID pairs in
+      `data/addressbook.json`.
+
+   1. Close and restart the app, then execute `list`, `listmembers pr/First project`, and
+      `listmembers pr/Second project`.<br>
+      Expected: Both same-name contacts load with their saved details. Each project reports one member named
+      Alex Tan. Since the member output shows names only, check the saved JSON to confirm that the first project
+      still references the first contact's ID, the second project references the second contact's ID, and all
+      recorded contact IDs and membership pairs are unchanged.
+
 ### Deleting a person
 
 1. Deleting a person while all persons are being shown
@@ -635,6 +705,47 @@ testers are expected to do more *exploratory* testing.
 
 1. Add projects with and without descriptions using `addproject`, then run `listprojects`.<br>
    Expected: Projects are shown in insertion order with their displayed number, deadline, and description.
+
+### Listing a contact's projects
+
+1. Set up a disposable copy of the app in a separate folder. Run `clear` in that copy, then execute:
+
+   ```text
+   add n/Alex Querytest p/81234567 e/alex@example.com a/Block 1
+   add n/Blair Querytest p/82345678 e/blair@example.com a/Block 2
+   addproject n/Unrelated project d/2026-11-13
+   addproject n/Alpha project d/2026-11-14 desc/First associated project
+   addproject n/Beta project d/2026-11-15
+   associate c/1 pr/1
+   associate c/2 pr/3
+   associate c/2 pr/2
+   ```
+
+1. Run `listprojects`, then `listprojects c/2`.<br>
+   Expected: The first command lists all three projects. The second identifies Blair Querytest and lists Alpha as 2
+   and Beta as 3, despite their reverse association order. Both results include deadlines and descriptions, with
+   `No description provided` for Beta. The Contacts and Projects tabs retain all entries in their original order.
+
+1. Run `find Blair`, then `listprojects c/1`.<br>
+   Expected: The result still identifies Blair and lists projects 2 and 3. The contact search remains active.
+   Run `listprojects c/2`; it reports an invalid displayed contact index because only one contact is displayed.
+
+1. Try `listprojects c/`, `listprojects c/0`, `listprojects c/-1`, `listprojects c/abc`,
+   `listprojects c/2147483648`, `listprojects c/1 c/2`, `listprojects pr/2`, and `listprojects c/1 extra`.<br>
+   Expected: Each command reports an error. Run `listprojects c/1` again to confirm the same two associations remain
+   and the contact search is still active.
+
+1. Run `dissociate c/1 pr/2`, then `listprojects c/1`.<br>
+   Expected: Only Beta is listed, still numbered 3. This confirms that a result's project number can be used directly
+   for dissociation. Alpha remains in the Projects tab.
+
+1. Close and restart the disposable app from the same folder, run `list`, then `listprojects c/2`.<br>
+   Expected: Blair still belongs only to Beta, numbered 3. All contact and project details and IDs are retained in
+   `data/addressbook.json`, and the unrelated association between Alex and project 1 is retained.
+
+1. Run `dissociate c/2 pr/3`, then `listprojects c/2`.<br>
+   Expected: The result reports that no projects are associated with Blair. The contact and all three projects remain.
+   Run `associate c/2 pr/2`, then `listprojects c/2`; Alpha is listed again as project 2.
 
 ### Associating a contact with a project
 

@@ -11,6 +11,9 @@ import seedu.address.commons.util.ToStringBuilder;
  */
 public class CommandResult {
 
+    /** The list the UI should reveal after a successful command. NONE preserves the current tab. */
+    public enum ListViewTarget { NONE, CONTACTS, PROJECTS }
+
     private final String feedbackToUser;
 
     /** Help information should be shown to the user. */
@@ -19,13 +22,26 @@ public class CommandResult {
     /** The application should exit. */
     private final boolean exit;
 
+    private final ListViewTarget listViewTarget;
+
     /**
      * Constructs a {@code CommandResult} with the specified fields.
      */
     public CommandResult(String feedbackToUser, boolean showHelp, boolean exit) {
+        this(feedbackToUser, showHelp, exit, ListViewTarget.NONE);
+    }
+
+    /** Constructs a result with an explicit list to reveal in the UI. */
+    public CommandResult(String feedbackToUser, boolean showHelp, boolean exit, ListViewTarget listViewTarget) {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
+        this.listViewTarget = requireNonNull(listViewTarget);
+    }
+
+    /** Constructs feedback that also reveals the requested list. */
+    public CommandResult(String feedbackToUser, ListViewTarget listViewTarget) {
+        this(feedbackToUser, false, false, listViewTarget);
     }
 
     /**
@@ -34,6 +50,11 @@ public class CommandResult {
      */
     public CommandResult(String feedbackToUser) {
         this(feedbackToUser, false, false);
+    }
+
+    /** Returns the list to reveal, or NONE to keep the current tab selected. */
+    public ListViewTarget getListViewTarget() {
+        return listViewTarget;
     }
 
     public String getFeedbackToUser() {
@@ -61,12 +82,13 @@ public class CommandResult {
 
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
-                && exit == otherCommandResult.exit;
+                && exit == otherCommandResult.exit
+                && listViewTarget == otherCommandResult.listViewTarget;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(feedbackToUser, showHelp, exit);
+        return Objects.hash(feedbackToUser, showHelp, exit, listViewTarget);
     }
 
     @Override
@@ -75,6 +97,7 @@ public class CommandResult {
                 .add("feedbackToUser", feedbackToUser)
                 .add("showHelp", showHelp)
                 .add("exit", exit)
+                .add("listViewTarget", listViewTarget)
                 .toString();
     }
 

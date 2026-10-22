@@ -175,9 +175,30 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_listProjects() throws Exception {
-        assertTrue(parser.parseCommand(ListProjectsCommand.COMMAND_WORD) instanceof ListProjectsCommand);
-        assertTrue(parser.parseCommand(" \t" + ListProjectsCommand.COMMAND_WORD + " \t")
-                instanceof ListProjectsCommand);
+        assertEquals(new ListProjectsCommand(), parser.parseCommand("listprojects"));
+        assertEquals(new ListProjectsCommand(), parser.parseCommand(" \tlistprojects \t"));
+        assertEquals(new ListProjectsCommand(INDEX_SECOND_PERSON), parser.parseCommand("listprojects c/2"));
+        assertEquals(new ListProjectsCommand(INDEX_SECOND_PERSON), parser.parseCommand("  listprojects   c/ 2  "));
+    }
+
+    @Test
+    public void parseCommand_listProjectsInvalidArguments_throwsParseException() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, ListProjectsCommand.MESSAGE_USAGE);
+        String[] invalidCommands = {
+            "listprojects 3", "listprojects unexpected text", "listprojects n/Alice", "listprojects\t123 \t",
+            "listprojects c/", "listprojects c/0", "listprojects c/-1", "listprojects c/abc",
+            "listprojects c/2147483648", "listprojects c/2 pr/1"
+        };
+        for (String command : invalidCommands) {
+            assertThrows(ParseException.class, expectedMessage, () -> parser.parseCommand(command));
+        }
+    }
+
+    @Test
+    public void parseCommand_listProjectsDuplicatePrefix_throwsParseException() {
+        String expectedMessage = Messages.getErrorMessageForDuplicatePrefixes(PREFIX_CONTACT);
+        assertThrows(ParseException.class,
+                expectedMessage, () -> parser.parseCommand("listprojects c/1 c/2"));
     }
 
     @Test
@@ -186,8 +207,7 @@ public class AddressBookParserTest {
                 ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_USAGE,
                 ExitCommand.COMMAND_WORD, ExitCommand.MESSAGE_USAGE,
                 HelpCommand.COMMAND_WORD, HelpCommand.MESSAGE_USAGE,
-                ListCommand.COMMAND_WORD, ListCommand.MESSAGE_USAGE,
-                ListProjectsCommand.COMMAND_WORD, ListProjectsCommand.MESSAGE_USAGE);
+                ListCommand.COMMAND_WORD, ListCommand.MESSAGE_USAGE);
 
         usages.forEach((commandWord, usage) -> {
             String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, usage);

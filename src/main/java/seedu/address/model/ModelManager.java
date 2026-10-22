@@ -136,6 +136,12 @@ public class ModelManager implements Model {
     }
 
     @Override
+    public List<Project> getPersonProjects(Person person) {
+        requireNonNull(person);
+        return addressBook.getPersonProjects(person);
+    }
+
+    @Override
     public boolean hasProjectMembership(ProjectMembership membership) {
         requireNonNull(membership);
         return addressBook.hasProjectMembership(membership);
@@ -145,6 +151,7 @@ public class ModelManager implements Model {
     public void addProjectMembership(ProjectMembership membership) {
         requireNonNull(membership);
         addressBook.addProjectMembership(membership);
+        refreshPersonFilter();
     }
 
     @Override
@@ -157,6 +164,16 @@ public class ModelManager implements Model {
     public void removeProjectMembership(ProjectMembership membership) {
         requireNonNull(membership);
         addressBook.removeProjectMembership(membership);
+        refreshPersonFilter();
+    }
+
+    /** Re-evaluates the current contact filter when membership changes without a person being edited. */
+    private void refreshPersonFilter() {
+        Predicate<? super Person> predicate = filteredPersons.getPredicate();
+        if (predicate != null) {
+            filteredPersons.setPredicate(null);
+            filteredPersons.setPredicate(predicate);
+        }
     }
 
     //=========== Filtered Person List Accessors =============================================================
