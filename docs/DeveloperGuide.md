@@ -151,17 +151,20 @@ when any other field differs. `UniquePersonList` separately enforces unique IDs.
 contact list. `UniquePersonList` enforces the same duplicate rule for additions, replacements, and bulk updates.
 An unchanged edit is allowed; a changed contact must not match another contact's complete details.
 
-A `ProjectMembership` represents the association between one contact and one project. It stores only the contact's
-`PersonId` and the project's `ProjectId`; it does not store copies of the corresponding `Person` or `Project`.
+A `ProjectMembership` represents the association between one contact and one project. It stores the contact's
+`PersonId`, the project's `ProjectId`, and an immutable `Role` describing that contact's task allotment for the project;
+it does not store copies of the corresponding `Person` or `Project`.
 `AddressBook` maintains these associations in a `UniqueProjectMembershipList`, where each person-project ID pair may
 occur at most once. A membership can be added only when both referenced entities exist in the same address book.
 Deleting a person or project removes its related memberships, while editing either entity preserves its memberships
 because its ID remains unchanged. Address book copies and resets include the membership collection, and callers can
 inspect it only through an unmodifiable list.
 
-`Model` exposes membership lookup and addition through `hasProjectMembership` and `addProjectMembership`.
-`ModelManager` delegates these operations to `AddressBook`, which enforces membership uniqueness and valid entity
-references. `AssociateCommand` resolves the displayed contact index and project list index, validates both, and
+`Model` exposes membership lookup, addition, removal, and role replacement through `hasProjectMembership`,
+`addProjectMembership`, `removeProjectMembership`, and `setProjectMembership`. `ModelManager` delegates these operations
+to `AddressBook`, which enforces membership uniqueness and valid entity references. Role replacement locates the
+existing person-project pair and changes its immutable membership value without changing its identity. `AssociateCommand`
+resolves the displayed contact index and project list index, validates both, and
 creates a membership using the selected entities' IDs. It rejects an existing pair before modifying the model and
 confirms success with both names. `AddressBookParser` routes `associate` to `AssociateCommandParser`, which requires
 one `c/` prefix and one `pr/` prefix, rejects a non-empty preamble, and parses both values with `ParserUtil#parseIndex`.
@@ -224,7 +227,8 @@ This section describes some noteworthy details on how certain features are imple
 
 The project membership model represents the many-to-many relationship between contacts and projects: one contact can
 belong to multiple projects, and one project can contain multiple contacts. Each relationship is represented by a
-separate `ProjectMembership` value object containing a `PersonId` and a `ProjectId`.
+separate `ProjectMembership` value object containing a `PersonId`, a `ProjectId`, and that member's project-specific
+`Role`.
 
 Using stable IDs keeps memberships valid when descriptive fields such as a contact's phone number or a project's name
 change. It also avoids the stale or inconsistent data that could result from storing copies of `Person` or `Project` in
@@ -237,8 +241,10 @@ is deleted. During reset, persons and projects are installed before memberships 
 validated against the replacement data.
 
 The `listmembers` command resolves a project name to its `Project`, then asks the model for that project's contacts.
-`AddressBook#getProjectMembers` matches membership IDs and returns contacts in address-book order; command logic does
-not inspect or mutate the membership collection directly.
+`AddressBook#getProjectMembers` matches membership IDs and returns contacts in address-book order. The command reads
+the corresponding membership roles to display them beside contact names. `SetRoleCommand` resolves the selected
+contact and project, confirms their membership exists, then replaces that membership with a value carrying the new
+role. The membership identity remains the same because equality is based on the person and project IDs.
 
 The `listprojects` command optionally accepts `c/CONTACT_INDEX`. Its parser creates a command with or without a contact
 index. When an index is supplied, the command resolves it against `Model#getFilteredPersonList`, then calls

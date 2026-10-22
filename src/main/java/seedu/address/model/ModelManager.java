@@ -155,6 +155,12 @@ public class ModelManager implements Model {
     }
 
     @Override
+    public void setProjectMembership(ProjectMembership membership) {
+        requireNonNull(membership);
+        addressBook.setProjectMembership(membership);
+    }
+
+    @Override
     public void removeProjectMembership(ProjectMembership membership) {
         requireNonNull(membership);
         addressBook.removeProjectMembership(membership);

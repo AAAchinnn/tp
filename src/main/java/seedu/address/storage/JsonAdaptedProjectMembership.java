@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.membership.Role;
 import seedu.address.model.person.PersonId;
 import seedu.address.model.project.ProjectId;
 
@@ -17,15 +18,17 @@ class JsonAdaptedProjectMembership {
 
     private final String personId;
     private final String projectId;
+    private final String role;
 
     /**
      * Constructs a {@code JsonAdaptedProjectMembership} using the stored identifiers.
      */
     @JsonCreator
     public JsonAdaptedProjectMembership(@JsonProperty("personId") String personId,
-            @JsonProperty("projectId") String projectId) {
+            @JsonProperty("projectId") String projectId, @JsonProperty("role") String role) {
         this.personId = personId;
         this.projectId = projectId;
+        this.role = role;
     }
 
     /**
@@ -34,6 +37,7 @@ class JsonAdaptedProjectMembership {
     public JsonAdaptedProjectMembership(ProjectMembership source) {
         personId = source.getPersonId().toString();
         projectId = source.getProjectId().toString();
+        role = source.getRole().toString();
     }
 
     /**
@@ -64,6 +68,12 @@ class JsonAdaptedProjectMembership {
             throw new IllegalValueException(ProjectId.MESSAGE_CONSTRAINTS, e);
         }
 
-        return new ProjectMembership(modelPersonId, modelProjectId);
+        final Role modelRole;
+        try {
+            modelRole = role == null ? Role.EMPTY : new Role(role);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalValueException(Role.MESSAGE_CONSTRAINTS, e);
+        }
+        return new ProjectMembership(modelPersonId, modelProjectId, modelRole);
     }
 }

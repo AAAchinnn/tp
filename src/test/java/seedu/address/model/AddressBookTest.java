@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.membership.Role;
 import seedu.address.model.membership.exceptions.DuplicateProjectMembershipException;
 import seedu.address.model.membership.exceptions.ProjectMembershipNotFoundException;
 import seedu.address.model.person.Person;
@@ -246,6 +247,53 @@ public class AddressBookTest {
 
         assertTrue(addressBook.hasProjectMembership(membership));
         assertEquals(List.of(membership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void setProjectMembership_nullMembership_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> addressBook.setProjectMembership(null));
+    }
+
+    @Test
+    public void setProjectMembership_existingMembership_replacesRole() {
+        Project project = createProject("CS2103T");
+        ProjectMembership membership = addMembership(addressBook, ALICE, project);
+        ProjectMembership updatedMembership = membership.withRole(new Role("Write tests"));
+
+        addressBook.setProjectMembership(updatedMembership);
+
+        assertEquals(List.of(updatedMembership), addressBook.getProjectMembershipList());
+    }
+
+    @Test
+    public void setProjectMembership_unknownPerson_throwsPersonNotFoundException() {
+        Project project = createProject("CS2103T");
+        addressBook.addProject(project);
+        ProjectMembership membership = new ProjectMembership(PersonId.generate(), project.getProjectId(),
+                new Role("Write tests"));
+
+        assertThrows(PersonNotFoundException.class, () -> addressBook.setProjectMembership(membership));
+    }
+
+    @Test
+    public void setProjectMembership_unknownProject_throwsProjectNotFoundException() {
+        addressBook.addPerson(ALICE);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), ProjectId.generate(),
+                new Role("Write tests"));
+
+        assertThrows(ProjectNotFoundException.class, () -> addressBook.setProjectMembership(membership));
+    }
+
+    @Test
+    public void setProjectMembership_missingMembership_throwsProjectMembershipNotFoundException() {
+        Project project = createProject("CS2103T");
+        addMembership(addressBook, ALICE, project);
+        Project otherProject = createProject("Orbital");
+        addressBook.addProject(otherProject);
+        ProjectMembership membership = new ProjectMembership(ALICE.getPersonId(), otherProject.getProjectId(),
+                new Role("Write tests"));
+
+        assertThrows(ProjectMembershipNotFoundException.class, () -> addressBook.setProjectMembership(membership));
     }
 
     @Test

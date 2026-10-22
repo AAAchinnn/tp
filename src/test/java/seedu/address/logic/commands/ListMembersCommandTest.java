@@ -18,6 +18,7 @@ import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.membership.ProjectMembership;
+import seedu.address.model.membership.Role;
 import seedu.address.model.person.Person;
 import seedu.address.model.project.Deadline;
 import seedu.address.model.project.Description;
@@ -147,6 +148,20 @@ public class ListMembersCommandTest {
 
         assertEquals(List.of(ALICE), model.getAddressBook().getPersonList());
         assertTrue(model.getFilteredPersonList().isEmpty());
+    }
+
+    @Test
+    public void execute_projectWithRole_listsRoleBesideMember() throws Exception {
+        Model model = new ModelManager();
+        model.addPerson(ALICE);
+        model.addProject(project);
+        model.addProjectMembership(new ProjectMembership(ALICE.getPersonId(), project.getProjectId(),
+                new Role("Implement parser")));
+
+        CommandResult result = new ListMembersCommand(project.getName()).execute(model);
+
+        assertEquals("Contacts in project \"CS2103T Team Project\" (1):\n1. Alice Pauline — Implement parser",
+                result.getFeedbackToUser());
     }
 
     @Test

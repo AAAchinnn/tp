@@ -53,6 +53,16 @@ public class UniqueProjectMembershipList implements Iterable<ProjectMembership> 
         }
     }
 
+    /** Replaces a membership matching the same person and project identifiers. */
+    public void set(ProjectMembership membership) {
+        requireNonNull(membership);
+        int index = internalList.indexOf(membership);
+        if (index < 0) {
+            throw new ProjectMembershipNotFoundException();
+        }
+        internalList.set(index, membership);
+    }
+
     /**
      * Replaces the contents of this list with the contents of {@code replacement}.
      */

@@ -93,6 +93,27 @@ public class UniqueProjectMembershipListTest {
     }
 
     @Test
+    public void set_nullMembership_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> memberships.set(null));
+    }
+
+    @Test
+    public void set_existingMembership_replacesValueAndKeepsPosition() {
+        memberships.add(MEMBERSHIP);
+        memberships.add(SAME_PERSON_OTHER_PROJECT);
+        ProjectMembership updatedMembership = MEMBERSHIP.withRole(new Role("Write tests"));
+
+        memberships.set(updatedMembership);
+
+        assertEquals(List.of(updatedMembership, SAME_PERSON_OTHER_PROJECT), memberships.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void set_missingMembership_throwsProjectMembershipNotFoundException() {
+        assertThrows(ProjectMembershipNotFoundException.class, () -> memberships.set(MEMBERSHIP));
+    }
+
+    @Test
     public void setMemberships_nullList_throwsNullPointerException() {
         List<ProjectMembership> nullMemberships = null;
 

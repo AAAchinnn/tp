@@ -23,6 +23,7 @@ import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.ListMembersCommand;
 import seedu.address.logic.commands.ListProjectsCommand;
+import seedu.address.logic.commands.SetRoleCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 
 /**
@@ -68,6 +69,7 @@ public class AddressBookParser {
                     arguments, ListCommand.MESSAGE_USAGE, new ListCommand());
             case ListProjectsCommand.COMMAND_WORD -> new ListProjectsCommandParser().parse(arguments);
             case ListMembersCommand.COMMAND_WORD -> new ListMembersCommandParser().parse(arguments);
+            case SetRoleCommand.COMMAND_WORD -> new SetRoleCommandParser().parse(arguments);
             case ExitCommand.COMMAND_WORD -> parseParameterFreeCommand(
                     arguments, ExitCommand.MESSAGE_USAGE, new ExitCommand());
             case HelpCommand.COMMAND_WORD -> parseParameterFreeCommand(
