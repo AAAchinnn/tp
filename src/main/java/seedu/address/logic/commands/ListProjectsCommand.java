@@ -51,13 +51,14 @@ public class ListProjectsCommand extends Command {
 
         List<Project> projects = model.getProjectList();
         if (projects.isEmpty()) {
-            return new CommandResult(MESSAGE_EMPTY);
+            return new CommandResult(MESSAGE_EMPTY, CommandResult.ListViewTarget.PROJECTS);
         }
 
         String projectDetails = IntStream.range(0, projects.size())
                 .mapToObj(index -> formatProject(projects.get(index), index + 1))
                 .collect(Collectors.joining("\n"));
-        return new CommandResult(String.format(MESSAGE_SUCCESS, projects.size(), projectDetails));
+        return new CommandResult(String.format(MESSAGE_SUCCESS, projects.size(), projectDetails),
+                CommandResult.ListViewTarget.PROJECTS);
     }
 
     private CommandResult executeForContact(Model model, Index index) throws CommandException {

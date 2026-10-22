@@ -151,12 +151,23 @@ public class ModelManager implements Model {
     public void addProjectMembership(ProjectMembership membership) {
         requireNonNull(membership);
         addressBook.addProjectMembership(membership);
+        refreshPersonFilter();
     }
 
     @Override
     public void removeProjectMembership(ProjectMembership membership) {
         requireNonNull(membership);
         addressBook.removeProjectMembership(membership);
+        refreshPersonFilter();
+    }
+
+    /** Re-evaluates the current contact filter when membership changes without a person being edited. */
+    private void refreshPersonFilter() {
+        Predicate<? super Person> predicate = filteredPersons.getPredicate();
+        if (predicate != null) {
+            filteredPersons.setPredicate(null);
+            filteredPersons.setPredicate(predicate);
+        }
     }
 
     //=========== Filtered Person List Accessors =============================================================

@@ -3,12 +3,15 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.membership.ProjectMembership;
 import seedu.address.model.person.Person;
 import seedu.address.model.project.Project;
 import seedu.address.model.project.ProjectName;
@@ -25,6 +28,8 @@ public class ListMembersCommand extends Command {
     public static final String MESSAGE_NO_MEMBERS = "No contacts are associated with project \"%1$s\".";
     public static final String MESSAGE_SUCCESS = "Contacts in project \"%1$s\" (%2$d):\n%3$s";
 
+    private static final Logger logger = LogsCenter.getLogger(ListMembersCommand.class);
+
     private final ProjectName projectName;
 
     /** Creates a command to list the contacts associated with {@code projectName}. */
@@ -40,14 +45,21 @@ public class ListMembersCommand extends Command {
                 .orElseThrow(() -> new CommandException(
                         String.format(MESSAGE_PROJECT_NOT_FOUND, projectName)));
         List<Person> members = model.getProjectMembers(project);
+        model.updateFilteredPersonList(person -> model.hasProjectMembership(
+                new ProjectMembership(person.getPersonId(), project.getProjectId())));
+        assert model.getFilteredPersonList().size() == members.size()
+                : "Displayed members must match project membership";
+        logger.fine("Showing " + members.size() + " project member cards");
         if (members.isEmpty()) {
-            return new CommandResult(String.format(MESSAGE_NO_MEMBERS, projectName));
+            return new CommandResult(String.format(MESSAGE_NO_MEMBERS, projectName),
+                    CommandResult.ListViewTarget.CONTACTS);
         }
 
         String memberNames = IntStream.range(0, members.size())
                 .mapToObj(index -> String.format("%1$d. %2$s", index + 1, members.get(index).getName()))
                 .collect(Collectors.joining("\n"));
-        return new CommandResult(String.format(MESSAGE_SUCCESS, projectName, members.size(), memberNames));
+        return new CommandResult(String.format(MESSAGE_SUCCESS, projectName, members.size(), memberNames),
+                CommandResult.ListViewTarget.CONTACTS);
     }
 
     @Override
