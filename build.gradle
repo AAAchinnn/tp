@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'java'
     id 'checkstyle'
@@ -27,6 +29,18 @@ checkstyle {
 
 test {
     useJUnitPlatform()
+    // ImageIO only needs off-screen images; JavaFX manages its own display toolkit.
+    systemProperty 'java.awt.headless', 'true'
+    testLogging {
+        events 'failed', 'skipped'
+        exceptionFormat = 'full'
+    }
+    if (System.getenv('CI') == 'true') {
+        // Keep the active test name in CI logs even if a native crash terminates the JVM.
+        beforeTest { descriptor ->
+            logger.lifecycle("Running ${descriptor.className}.${descriptor.name}")
+        }
+    }
     finalizedBy jacocoTestReport
 }
 
@@ -46,28 +60,45 @@ task coverage(type: JacocoReport) {
     }
 }
 
-def osName = System.getProperty('os.name').toLowerCase()
-def arch = System.getProperty('os.arch').toLowerCase()
+configurations {
+    // Shared libraries, excluding the existing Windows/Linux/Intel Mac JavaFX.
+    macArmCommon {
+        canBeConsumed = false
+        canBeResolved = true
+        extendsFrom(project.configurations.implementation,
+                project.configurations.runtimeOnly)
+        exclude group: 'org.openjfx'
+    }
 
-def javafxPlatform
-if (osName.contains('win')) {
-    javafxPlatform = 'win'
-} else if (osName.contains('mac')) {
-    javafxPlatform = arch in ['aarch64', 'arm64'] ? 'mac-aarch64' : 'mac'
-} else if (osName.contains('linux')) {
-    javafxPlatform = arch in ['aarch64', 'arm64'] ? 'linux-aarch64' : 'linux'
-} else {
-    throw new GradleException("Unsupported OS: ${System.getProperty('os.name')}")
+    // ARM JavaFX modules are declared explicitly below.
+    macArmJavafx {
+        canBeConsumed = false
+        canBeResolved = true
+        transitive = false
+    }
 }
 
 dependencies {
     String jUnitVersion = '5.14.4'
     String javaFxVersion = '17.0.7'
 
-    implementation "org.openjfx:javafx-base:${javaFxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-controls:${javaFxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-fxml:${javaFxVersion}:${javafxPlatform}"
-    implementation "org.openjfx:javafx-graphics:${javaFxVersion}:${javafxPlatform}"
+    ['base', 'controls', 'fxml', 'graphics'].each { module ->
+        add('macArmJavafx',
+                "org.openjfx:javafx-${module}:${javaFxVersion}:mac-aarch64")
+    }
+
+    implementation "org.openjfx:javafx-base:${javaFxVersion}:win"
+    implementation "org.openjfx:javafx-base:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-base:${javaFxVersion}:linux"
+    implementation "org.openjfx:javafx-controls:${javaFxVersion}:win"
+    implementation "org.openjfx:javafx-controls:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-controls:${javaFxVersion}:linux"
+    implementation "org.openjfx:javafx-fxml:${javaFxVersion}:win"
+    implementation "org.openjfx:javafx-fxml:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-fxml:${javaFxVersion}:linux"
+    implementation "org.openjfx:javafx-graphics:${javaFxVersion}:win"
+    implementation "org.openjfx:javafx-graphics:${javaFxVersion}:mac"
+    implementation "org.openjfx:javafx-graphics:${javaFxVersion}:linux"
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.4'
@@ -80,6 +111,37 @@ dependencies {
 
 shadowJar {
     archiveFileName = 'uniteam.jar'
+}
+
+tasks.register('shadowJarMacArm',
+        ShadowJar) {
+    group = 'build'
+    description = 'Builds the Apple Silicon macOS release JAR.'
+    dependsOn tasks.named('classes')
+
+    archiveFileName = 'uniteam-mac-arm64.jar'
+    from sourceSets.main.output
+
+    configurations = [
+            project.configurations.macArmCommon,
+            project.configurations.macArmJavafx
+    ]
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Main-Class': 'seedu.address.Main'
+    }
+}
+
+// Prevent the ordinary thin JAR from overwriting a release JAR.
+tasks.named('jar') {
+    archiveClassifier = 'plain'
+}
+
+// Include both release JARs when running build.
+tasks.named('assemble') {
+    dependsOn tasks.named('shadowJar'), tasks.named('shadowJarMacArm')
 }
 
 run {
