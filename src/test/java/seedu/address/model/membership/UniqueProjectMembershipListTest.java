@@ -133,9 +133,9 @@ public class UniqueProjectMembershipListTest {
     public void setMemberships_samePersonProjectWithDifferentRoles_throwsDuplicateProjectMembershipException() {
         ProjectMembership firstRole = MEMBERSHIP.withRole(new Role("Implement parser"));
         ProjectMembership secondRole = MEMBERSHIP.withRole(new Role("Write tests"));
-
-        assertThrows(DuplicateProjectMembershipException.class,
-                () -> memberships.setMemberships(List.of(firstRole, secondRole)));
+        assertThrows(DuplicateProjectMembershipException.class, () -> {
+            memberships.setMemberships(List.of(firstRole, secondRole));
+        });
         assertTrue(memberships.asUnmodifiableObservableList().isEmpty());
     }
 
